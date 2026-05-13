@@ -1,38 +1,33 @@
 import requests
 
-def get_weather():
-    try:
-        # 1. YENİ EKLENTİ: Otomatik Konum Bulucu (İnternet üzerinden şehri bulur)
-        loc_url = "http://ip-api.com/json/"
-        loc_data = requests.get(loc_url).json()
-        
-        # Eğer konumu otomatik bulamazsa varsayılan olarak İSTANBUL koordinatlarını kullan
-        lat = loc_data.get('lat', 41.01)
-        lon = loc_data.get('lon', 28.97)
-        city = loc_data.get('city', 'İstanbul')
+# Fonksiyonun parantez içini (lat=None, lon=None) olarak güncelledik
+def get_weather(lat=None, lon=None):
+    # Kendi API anahtarını tırnak içine yapıştır
+    api_key = "B6853174f9381e654089f168c2a4c1641" 
+    
+    # 1. MANTIK: Eğer tarayıcıdan koordinat gelmişse (lat ve lon doluysa)
+    if lat and lon:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=tr"
+    
+    # 2. MANTIK: Eğer koordinat yoksa (ilk açılış veya izin reddi) varsayılan şehir
+    else:
+        url = f"https://api.openweathermap.org/data/2.5/weather?q=Istanbul&appid={api_key}&units=metric&lang=tr"
 
-        # 2. Bulunan o koordinatlara (Enlem ve Boylam) göre hava durumunu çek
-        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        weather_data = requests.get(weather_url).json()
-        
-        temp = weather_data['current_weather']['temperature']
-        weather_code = weather_data['current_weather']['weathercode']
-        
-        # Yağmur veya Kar kontrolü
-        is_raining_or_snowing = False
-        if weather_code >= 60:
-            is_raining_or_snowing = True
-            
+    try:
+        response = requests.get(url).json()
+        # Django'nun beklediği sözlük yapısını döndürüyoruz
         return {
-            'temp': temp,
-            'is_precipitating': is_raining_or_snowing,
-            'city': city  # Şehir adını da ekrana yazdırmak için pakete ekledik!
+            'temp': int(response['main']['temp']),
+            'feels_like': int(response['main']['feels_like']),
+            'is_precipitating': response['weather'][0]['main'] in ['Rain', 'Snow', 'Drizzle'],
+            'city': response['name']
         }
-        
     except Exception as e:
-        # Hata olursa sistemi çökertme, İstanbul varsayılanıyla devam et
+        # Bir hata olursa (internet kesilmesi vb.) uygulama çökmesin diye yedek veriler
+        print(f"Hava durumu hatası: {e}")
         return {
-            'temp': 20,
-            'is_precipitating': False,
-            'city': 'İstanbul'
+            'temp': 20, 
+            'feels_like': 20, 
+            'is_precipitating': False, 
+            'city': "Konum Alınamadı"
         }

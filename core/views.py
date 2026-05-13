@@ -10,15 +10,20 @@ from django.utils import timezone
 
 @login_required(login_url='login')
 def index(request):
-    weather_data = get_weather()
+    # --- YENİ: Koordinatları URL'den alıyoruz ---
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    
+    # get_weather fonksiyonuna koordinatları gönderiyoruz
+    weather_data = get_weather(lat=lat, lon=lon)
+    # --------------------------------------------
+
     current_temp = weather_data['temp']
-    
-    # 4. FİKİR: GELİŞMİŞ HAVA DURUMU (Hissedilen Sıcaklık)
     feels_like_temp = weather_data.get('feels_like', current_temp)
-    
     is_raining_or_snowing = weather_data['is_precipitating']
     current_city = weather_data['city']
 
+    # ... (Geri kalan tüm kodlar aynı kalacak, dokunmana gerek yok) ...
     if request.method == 'POST':
         form = ClothingItemForm(request.POST)
         if form.is_valid():

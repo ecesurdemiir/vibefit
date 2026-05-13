@@ -158,10 +158,37 @@
 </div>
 
 <script>
-    // Sayfa yüklendiğinde sidebar'daki 'Ana Sayfa' linkini aktif yapar
+ 
+    // Mevcut aktif link kodların kalabilir
     document.getElementById('nav-home').classList.add('active');
-    if (document.getElementById('nav-history')) {
-        document.getElementById('nav-history').classList.remove('active');
+    
+    // --- YENİ KONUM SİSTEMİ ---
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(sendPosition, showError);
+        } else {
+            console.log("Tarayıcı konumu desteklemiyor.");
+        }
     }
+
+    function sendPosition(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        // URL'de halihazırda lat ve lon yoksa sayfayı koordinatlarla tekrar yükle
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('lat') || !urlParams.has('lon')) {
+            window.location.href = `?lat=${lat}&lon=${lon}`;
+        }
+    }
+
+    function showError(error) {
+        console.log("Konum alınamadı: " + error.message);
+    }
+
+    // Sayfa açıldığında konumu sormaya başla
+    window.onload = getLocation;
+    // --- KONUM SİSTEMİ BİTİŞ ---
+
 </script>
 {% endblock %}
