@@ -1,117 +1,154 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeFit Akıllı Gardırop</title>
-    <!-- BOOTSTRAP SİHİRLİ LİNKİ (Tüm güzelliği bu satır yapıyor) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .hero-alert { border-left: 5px solid #0dcaf0; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<!-- ÜST MENÜ (NAVBAR) -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">🧥 VibeFit Gardırop</a>
-        <div class="d-flex align-items-center">
-            <span class="text-light me-3">Merhaba, <strong class="text-info">{{ request.user.username }}</strong>!</span>
-            <form action="{% url 'logout' %}" method="POST" class="m-0">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger btn-sm">Çıkış Yap 🔒</button>
-            </form>
-        </div>
-    </div>
-</nav>
-
+{% block content %}
 <div class="container">
-    <!-- AKILLI ÖNERİ KUTUSU -->
-    <div class="alert alert-info shadow-sm hero-alert mb-5" role="alert">
+    <!-- 1. BÖLÜM: AKILLI ÖNERİ KUTUSU VE KOMBİN -->
+    <div class="alert alert-info shadow-sm hero-alert mb-4" role="alert">
         <h4 class="alert-heading fw-bold">🌤️ Günün Akıllı Önerisi</h4>
-        <p class="mb-2">📍 Konum: <strong>{{ city }}</strong> &nbsp;|&nbsp; 🌡️ Sıcaklık: <strong>{{ temp }}°C</strong></p>
+        
+        <!-- YENİ: Hissedilen Sıcaklık eklendi -->
+        <p class="mb-3">📍 Konum: <strong>{{ city }}</strong> &nbsp;|&nbsp; 🌡️ Sıcaklık: <strong>{{ temp }}°C</strong> <span class="text-muted small fw-bold">(Hissedilen: {{ feels_like }}°C)</span></p>
         
         {% if is_raining %}
-            <div class="alert alert-danger p-2 mb-2">
-                <strong>🌧️ Dikkat:</strong> Dışarıda yağış var veya bekleniyor! (Sadece su geçirmezler listeleniyor)
+            <div class="alert alert-danger p-2 mb-3 shadow-sm">
+                <strong>🌧️ Dikkat:</strong> Dışarıda yağış var! Sadece uygun parçalar listeleniyor.
             </div>
         {% endif %}
         
+        <!-- YENİ: AKILLI KOMBİN KARTI -->
+        {% if kombin %}
+        <div class="card mb-4 border-primary shadow-sm" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header bg-primary text-white fw-bold py-2">
+                ✨ Günün Akıllı Kombini (Sana Özel)
+            </div>
+            <div class="card-body bg-white">
+                <div class="row text-center align-items-center">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <h6 class="text-muted text-uppercase small mb-1">Üst Giyim</h6>
+                        <strong class="fs-5 text-dark">{{ kombin.ust.name }}</strong>
+                    </div>
+                    <span class="d-none d-md-block col-auto text-muted fw-bold">+</span>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <h6 class="text-muted text-uppercase small mb-1">Alt Giyim</h6>
+                        <strong class="fs-5 text-dark">{{ kombin.alt.name }}</strong>
+                    </div>
+                    <span class="d-none d-md-block col-auto text-muted fw-bold">+</span>
+                    <div class="col-md-3">
+                        <h6 class="text-muted text-uppercase small mb-1">Ayakkabı</h6>
+                        <strong class="fs-5 text-dark">{{ kombin.ayakkabi.name }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- AKILLI KOMBİN KARTI BİTİŞ -->
+
         <hr>
 
         {% if recommended %}
-            <p class="mb-2 fw-bold text-secondary">Hava durumuna göre senin için en uygun kıyafetler:</p>
+            <p class="mb-2 fw-bold text-secondary">Hava durumuna göre tekli alternatiflerin:</p>
             <ul class="list-group list-group-flush rounded">
                 {% for rec in recommended %}
-                    <li class="list-group-item list-group-item-info">✅ <strong>{{ rec.name }}</strong> <span class="badge bg-primary rounded-pill">{{ rec.category }}</span></li>
+                    <li class="list-group-item list-group-item-info d-flex justify-content-between align-items-center">
+                        <div>
+                            ✅ <strong>{{ rec.name }}</strong> 
+                            {% if rec.is_favorite %}
+                                <span class="ms-2 badge bg-warning text-dark">🌟 Senin Favorin!</span>
+                            {% endif %}
+                            
+                            <!-- GİYİLDİ BUTONU -->
+                            <a href="{% url 'wear_item' rec.id %}" 
+                            class="btn btn-sm ms-3 shadow-sm {% if rec == last_worn_item %}btn-secondary opacity-50 disabled{% else %}btn-outline-primary{% endif %}">
+                            
+                            {% if rec == last_worn_item %}
+                               ✅ Az Önce Giydin
+                            {% else %}
+                               Bugün Bunu Giydim 👕
+                            {% endif %}
+                         </a>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ rec.get_category_display }}</span>
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="mb-0 text-muted">🧐 Üzgünüm, şu anki hava durumuna ({{ temp }}°C) uygun temiz kıyafet bulamadım.</p>
+            <p class="mb-0 text-muted">🧐 Üzgünüm, şu anki hava durumuna uygun temiz kıyafet bulamadım.</p>
         {% endif %}
     </div>
 
-    <div class="row">
-        <!-- SOL TARAF: YENİ KIYAFET EKLEME FORMU -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white fw-bold">
-                    ➕ Yeni Kıyafet Ekle
+    <!-- YENİ: ÇAMAŞIR GÖSTERGESİ (DOLAP DURUMU) -->
+    <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px;">
+        <div class="card-body">
+            <h5 class="card-title text-secondary mb-3">🧺 Dolap Durumu (Temiz Kıyafet Oranı)</h5>
+            <div class="progress shadow-sm" style="height: 25px; border-radius: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated fw-bold 
+                    {% if clean_percentage < 30 %}bg-danger
+                    {% elif clean_percentage < 60 %}bg-warning text-dark
+                    {% else %}bg-success{% endif %}" 
+                    role="progressbar" 
+                    style="width: {{ clean_percentage }}%;" 
+                    aria-valuenow="{{ clean_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                    %{{ clean_percentage }} Temiz
                 </div>
-                <div class="card-body bg-white">
+            </div>
+            {% if clean_percentage < 30 %}
+                <small class="text-danger fw-bold mt-2 d-block">⚠️ Uyarı: Dolabındaki temiz kıyafetler azalıyor, çamaşır yıkama zamanı gelmiş olabilir!</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2. BÖLÜM: FORM VE LİSTELEME -->
+    <div class="row">
+        <!-- SOL SÜTUN: YENİ EKLEME FORMU -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+                <div class="card-header bg-dark text-white fw-bold" style="border-radius: 12px 12px 0 0;">➕ Yeni Kıyafet Ekle</div>
+                <div class="card-body bg-light">
                     <form method="POST">
                         {% csrf_token %}
-                        <!-- Django formunu biraz daha şık gösteriyoruz -->
-                        <div class="mb-3">
-                            {{ form.as_p }}
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 fw-bold">Dolaba Ekle ➕</button>
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">Gardıroba Ekle</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- SAĞ TARAF: DOLABIMDAKİ KIYAFETLER -->
+        <!-- SAĞ SÜTUN: TÜM GARDROP LİSTESİ -->
         <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-secondary text-white fw-bold">
-                    👕 Dolabımdaki Tüm Kıyafetler
-                </div>
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="card-header bg-secondary text-white fw-bold" style="border-radius: 12px 12px 0 0;">📁 Tüm Gardırobum</div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         {% for item in items %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                <div>
-                                    <h6 class="mb-1 fw-bold">{{ item.name }} <span class="badge bg-dark ms-1">{{ item.category }}</span></h6>
-                                    <small class="text-muted">
-                                        {% if item.is_clean %}<span class="text-success">✨ Temiz</span>{% else %}<span class="text-danger">🧺 Kirli</span>{% endif %} | 
-                                        Şart: {{ item.min_temp }}°C - {{ item.max_temp }}°C |
-                                        Su Geçirmez: {% if item.is_waterproof %}Evet ☔{% else %}Hayır ☀️{% endif %}
-                                    </small>
-                                </div>
-                                <form action="{% url 'delete_item' item.id %}" method="POST" class="m-0">
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <div>
+                                <span class="fw-bold fs-6">{{ item.name }}</span> 
+                                <small class="text-muted ms-1">({{ item.get_category_display }})</small>
+                                
+                                {% if item.is_clean %}
+                                    <span class="badge bg-success ms-2">Temiz</span>
+                                {% else %}
+                                    <span class="badge bg-danger ms-2">Kirli</span>
+                                {% endif %}
+                                
+                                <!-- Stili göstermek istersen (opsiyonel) -->
+                                <small class="text-muted ms-2 fst-italic">| {{ item.get_style_display }}</small>
+                            </div>
+                            
+                            <div class="btn-group shadow-sm">
+                                <!-- Durum Değiştir (Temiz/Kirli) -->
+                                <a href="{% url 'toggle_status' item.id %}" class="btn btn-sm btn-outline-secondary" title="Temiz/Kirli İşaretle">🧼</a>
+                                <!-- Favori Değiştir -->
+                                <a href="{% url 'toggle_favorite' item.id %}" class="btn btn-sm btn-outline-warning" title="Favorilere Ekle/Çıkar">
+                                    {% if item.is_favorite %}⭐{% else %}☆{% endif %}
+                                </a>
+                                <!-- Silme Formu -->
+                                <form action="{% url 'delete_item' item.id %}" method="POST" style="display:inline;">
                                     {% csrf_token %}
-                                    <div class="d-flex gap-2">
-                                        <!-- DURUM DEĞİŞTİRME BUTONU -->
-                                        <a href="{% url 'toggle_status' item.id %}" class="btn btn-sm {% if item.is_clean %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
-                                            {% if item.is_clean %}🧺 Kirlendi{% else %}✨ Yıkandı{% endif %}
-                                        </a>
-                                        
-                                        <!-- MEVCUT SİLME FORMU -->
-                                        <form action="{% url 'delete_item' item.id %}" method="POST" class="m-0">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Sil 🗑️</button>
-                                        </form>
-                                    </div>
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Sil 🗑️</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğine emin misin?')" title="Kıyafeti Sil">🗑️</button>
                                 </form>
-                            </li>
-                        {% empty %}
-                            <li class="list-group-item text-center text-muted p-4">
-                                Dolabın şu an boş. Sol taraftan hemen yeni bir şeyler ekle!
-                            </li>
+                            </div>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -120,28 +157,11 @@
     </div>
 </div>
 
-<!-- AKILLI FORM SİHRİ (JAVASCRIPT) - Kategoriye Göre Su Geçirmezlik Gizleme -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const categorySelect = document.getElementById("id_category");
-        const waterproofCheckbox = document.getElementById("id_is_waterproof");
-        
-        if (categorySelect && waterproofCheckbox) {
-            const waterproofContainer = waterproofCheckbox.parentElement;
-
-            function toggleWaterproof() {
-                const selectedText = categorySelect.options[categorySelect.selectedIndex].text.toLowerCase();
-                if (selectedText.includes("dış") || selectedText.includes("ayakkabı")) {
-                    waterproofContainer.style.display = "block";
-                } else {
-                    waterproofContainer.style.display = "none";
-                    waterproofCheckbox.checked = false; 
-                }
-            }
-            toggleWaterproof();
-            categorySelect.addEventListener("change", toggleWaterproof);
-        }
-    });
+    // Sayfa yüklendiğinde sidebar'daki 'Ana Sayfa' linkini aktif yapar
+    document.getElementById('nav-home').classList.add('active');
+    if (document.getElementById('nav-history')) {
+        document.getElementById('nav-history').classList.remove('active');
+    }
 </script>
-</body>
-</html>
+{% endblock %}

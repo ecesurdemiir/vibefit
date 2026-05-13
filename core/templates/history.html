@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Sayfa Başlığı -->
+    <h3 class="mb-4" style="color: #5d4037;">🕒 Son Giydiklerim</h3>
+    
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+                {% for item in history %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <!-- Kıyafetin Adı -->
+                            <strong class="text-dark">{{ item.name }}</strong>
+                            <!-- Kategorisi (Üst, Alt, Ayakkabı vb.) -->
+                            <span class="badge bg-light text-secondary ms-2" style="border: 1px solid #ddd;">
+                                {{ item.get_category_display }}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <!-- Giydiğin Tarih (Örn: 13 Mayıs 2026) -->
+                            <div class="small fw-bold" style="color: #8d6e63;">{{ item.last_worn|date:"d F Y" }}</div>
+                            <!-- Giydiğin Saat (Örn: 13:25) -->
+                            <div class="small text-muted">{{ item.last_worn|time:"H:i" }}</div>
+                        </div>
+                    </li>
+                {% empty %}
+                    <!-- Eğer liste boşsa görünecek kısım -->
+                    <li class="list-group-item text-center py-5 text-muted">
+                        <p class="mb-0">Henüz hiçbir kıyafetini "Giydim" olarak işaretlememişsin.</p>
+                        <small>Ana sayfaya dönüp bir seçim yapmaya ne dersin?</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
