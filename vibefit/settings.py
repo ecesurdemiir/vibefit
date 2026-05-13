@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-z%beim8h#e*3##6u$*%d61)pn0w9d7kmob(%n)&gw-4-09cezr
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://vibefit-2z34.onrender.com']
 
 
 # Application definition
