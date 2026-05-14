@@ -209,6 +209,6 @@ def bavul_hazirla(request):
         'weather': weather_data,
         'recommended': recommended_items,
         #popüler illeri ekledik
-        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Erzurum']
+        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Sivas','Rize','Eskişehir']
     }
     return render(request, 'bavul.html', context)
