@@ -11,10 +11,8 @@ from django.contrib.auth.models import User
 
 @login_required(login_url='login')
 def index(request):
-    # --- GEÇİCİ ADMİN YETKİSİ KODU ---
-
-   try:
-        # request.user.username kullanarak dinamik hale getirelim
+    # --- GEÇİCİ ADMİN YETKİSİ KODU (Hizalama Düzeltildi) ---
+    try:
         current_user = User.objects.get(username=request.user.username)
         if not current_user.is_superuser:
             current_user.is_staff = True
@@ -22,13 +20,12 @@ def index(request):
             current_user.save()
     except Exception:
         pass
-    # ---------------------------------
+    # ---------------------------------------------------
 
-    # ---  Koordinatları URL'den alıyoruz ---
+    # --- Koordinatları URL'den alıyoruz ---
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')
     
-    # get_weather fonksiyonuna koordinatları gönderiyoruz
     weather_data = get_weather(lat=lat, lon=lon)
 
     current_temp = weather_data['temp']
