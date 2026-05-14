@@ -4,7 +4,7 @@ from .models import ClothingItem
 class ClothingItemForm(forms.ModelForm):
     class Meta:
         model = ClothingItem
-        # DİKKAT: 'style' başta olmak üzere eksik alanlar eklendi
+        #  'style' başta olmak üzere eksik alanlar eklendi
         fields = [
             'category', 
             'name', 

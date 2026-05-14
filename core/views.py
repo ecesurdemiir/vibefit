@@ -10,7 +10,7 @@ from django.utils import timezone
 
 @login_required(login_url='login')
 def index(request):
-    # --- YENİ: Koordinatları URL'den alıyoruz ---
+    # ---  Koordinatları URL'den alıyoruz ---
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')
     
@@ -23,7 +23,7 @@ def index(request):
     is_raining_or_snowing = weather_data['is_precipitating']
     current_city = weather_data['city']
 
-    # ... (Geri kalan tüm kodlar aynı kalacak, dokunmana gerek yok) ...
+    
     if request.method == 'POST':
         form = ClothingItemForm(request.POST)
         if form.is_valid():
@@ -61,7 +61,7 @@ def index(request):
     
     recommended_items = recommended_items.order_by('-is_favorite', 'name')
 
-    # --- 1. FİKİR: AKILLI KOMBİN OLUŞTURUCU (DÜZELTİLEN KISIM) ---
+    # --- 1. FİKİR: AKILLI KOMBİN OLUŞTURUCU  ---
     kombin = None
     
     # Hava durumuna uyan tüm üst giyimleri alıyoruz
@@ -72,7 +72,7 @@ def index(request):
         alt_giyim = recommended_items.filter(category='alt', style=ust.style).first()
         ayakkabi = recommended_items.filter(category='ayakkabi', style=ust.style).first()
         
-        # Eğer bu üst giyimin 'stiline' uygun alt ve ayakkabı varsa kombini tamamla!
+        # Eğer bu üst giyimin 'stiline' uygun alt ve ayakkabı varsa kombini tamamla
         if alt_giyim and ayakkabi:
             kombin = {
                 'ust': ust,

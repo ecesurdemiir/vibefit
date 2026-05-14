@@ -10,7 +10,7 @@ urlpatterns = [
     # Durum Değiştirme Yolu (Temiz/Kirli)
     path('toggle-status/<int:item_id>/', views.toggle_status, name='toggle_status'),
     
-    # Favori Kapısı (Yeni eklediğimiz)
+    # Favori Kapısı 
     path('toggle-favorite/<int:item_id>/', views.toggle_favorite, name='toggle_favorite'),
     
     # KAYIT VE GİRİŞ İŞLEMLERİ:

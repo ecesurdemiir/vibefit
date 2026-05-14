@@ -1,7 +1,7 @@
 import requests
 
 def get_weather(lat=None, lon=None):
-    api_key = "6853174f9381e654089f168c2a4c1641" # Buraya kendi anahtarını yapıştır
+    api_key = "6853174f9381e654089f168c2a4c1641" 
     
     # Koordinat varsa koordinatla, yoksa direkt İstanbul ismiyle sorgula
     if lat and lon:
@@ -13,7 +13,7 @@ def get_weather(lat=None, lon=None):
     try:
         response = requests.get(url).json()
         
-        # API'den gelen şehir/ilçe ismini al (Örn: Beşiktaş, Şişli veya İstanbul)
+        # API'den gelen şehir/ilçe ismini al 
         city_name = response.get('name', 'Istanbul')
         
         return {
@@ -24,7 +24,7 @@ def get_weather(lat=None, lon=None):
         }
     except Exception as e:
         print(f"Hava durumu hatası: {e}")
-        # Hata anında bile profesyonel görünsün
+       # HATA YAKALAMA  
         return {
             'temp': 20, 
             'feels_like': 19, 

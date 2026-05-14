@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+    # kıyafet kategotrileri 
 class ClothingItem(models.Model):
     CATEGORY_CHOICES = [
         ('dis', 'Dış Giyim'),
@@ -10,7 +10,7 @@ class ClothingItem(models.Model):
         ('aksesuar', 'Aksesuar'),
     ]
 
-    # YENİ: Kombin uyumu için Stil seçenekleri
+    #  Kombin uyumu için Stil seçenekleri
     STYLE_CHOICES = [
         ('spor', 'Spor'),
         ('klasik', 'Klasik'),
@@ -27,7 +27,7 @@ class ClothingItem(models.Model):
     
     name = models.CharField(max_length=100, verbose_name="Kıyafet Adı")
     
-    # YENİ ALANLAR: Kombin oluşturucu için gerekli
+    # YENİ ALANLAR: Kombin oluşturucu 
     style = models.CharField(
         max_length=20, 
         choices=STYLE_CHOICES, 

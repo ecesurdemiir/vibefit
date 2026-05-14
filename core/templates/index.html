@@ -6,7 +6,7 @@
     <div class="alert alert-info shadow-sm hero-alert mb-4" role="alert">
         <h4 class="alert-heading fw-bold">🌤️ Günün Akıllı Önerisi</h4>
         
-        <!-- YENİ: Hissedilen Sıcaklık eklendi -->
+        <!--  Hissedilen Sıcaklık eklendi -->
         <p class="mb-3">📍 Konum: <strong>{{ city }}</strong> &nbsp;|&nbsp; 🌡️ Sıcaklık: <strong>{{ temp }}°C</strong> <span class="text-muted small fw-bold">(Hissedilen: {{ feels_like }}°C)</span></p>
         
         {% if is_raining %}
@@ -15,7 +15,7 @@
             </div>
         {% endif %}
         
-        <!-- YENİ: AKILLI KOMBİN KARTI -->
+        <!--  AKILLI KOMBİN KARTI -->
         {% if kombin %}
         <div class="card mb-4 border-primary shadow-sm" style="border-radius: 12px; overflow: hidden;">
             <div class="card-header bg-primary text-white fw-bold py-2">
@@ -44,7 +44,7 @@
         <!-- AKILLI KOMBİN KARTI BİTİŞ -->
 
         <hr>
-
+       <!--FAVORİLER -->
         {% if recommended %}
             <p class="mb-2 fw-bold text-secondary">Hava durumuna göre tekli alternatiflerin:</p>
             <ul class="list-group list-group-flush rounded">
@@ -76,7 +76,7 @@
         {% endif %}
     </div>
 
-    <!-- YENİ: ÇAMAŞIR GÖSTERGESİ (DOLAP DURUMU) -->
+    <!--  ÇAMAŞIR GÖSTERGESİ (DOLAP DURUMU) -->
     <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px;">
         <div class="card-body">
             <h5 class="card-title text-secondary mb-3">🧺 Dolap Durumu (Temiz Kıyafet Oranı)</h5>
@@ -131,7 +131,7 @@
                                     <span class="badge bg-danger ms-2">Kirli</span>
                                 {% endif %}
                                 
-                                <!-- Stili göstermek istersen (opsiyonel) -->
+                                <!-- Stili gösterme -->
                                 <small class="text-muted ms-2 fst-italic">| {{ item.get_style_display }}</small>
                             </div>
                             
