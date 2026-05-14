@@ -1,7 +1,7 @@
 import requests
 
 def get_weather(lat=None, lon=None):
-    api_key = "B6853174f9381e654089f168c2a4c1641" # Buraya kendi anahtarını yapıştır
+    api_key = "6853174f9381e654089f168c2a4c1641" # Buraya kendi anahtarını yapıştır
     
     # Koordinat varsa koordinatla, yoksa direkt İstanbul ismiyle sorgula
     if lat and lon:

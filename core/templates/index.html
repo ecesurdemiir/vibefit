@@ -159,36 +159,37 @@
 
 <script>
  
-   // link kodları //
-    document.getElementById('nav-home').classList.add('active');
-    
     // ---  KONUM SİSTEMİ ---
+    
     function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(sendPosition, showError);
-        } else {
-            console.log("Tarayıcı konumu desteklemiyor.");
-        }
-    }
-
-    function sendPosition(position) {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        
-        // URL'de halihazırda lat ve lon yoksa sayfayı koordinatlarla tekrar yükle
+        // Eğer URL'de zaten lat varsa tekrar sorma (sonsuz döngüyü engeller)
         const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('lat') || !urlParams.has('lon')) {
-            window.location.href = `?lat=${lat}&lon=${lon}`;
+        if (urlParams.has('lat')) return;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // Sayfayı koordinatlarla beraber tekrar yükle
+                window.location.href = `?lat=${lat}&lon=${lon}`;
+            }, function(error) {
+                console.error("Konum izni reddedildi veya alınamadı.");
+            });
         }
     }
-
-    function showError(error) {
-        console.log("Konum alınamadı: " + error.message);
+    // Sayfa yüklendiğinde çalıştır
+    window.onload = function() {
+    // Mevcut konum fonksiyonunu çağır
+    getLocation(); 
+    
+    // Ana sayfa linkini aktif yap
+    const homeNav = document.getElementById('nav-home');
+    if (homeNav) {
+        homeNav.classList.add('active');
     }
-
-    // Sayfa açıldığında konumu sormaya başla
-    window.onload = getLocation;
+};
+</script>
     // --- KONUM SİSTEMİ BİTİŞ ---
 
-</script>
+
 {% endblock %}
