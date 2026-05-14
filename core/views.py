@@ -12,14 +12,15 @@ from django.contrib.auth.models import User
 @login_required(login_url='login')
 def index(request):
     # --- GEÇİCİ ADMİN YETKİSİ KODU ---
-    # 'kullanıcı_adın' kısmını kendi giriş yaptığın isimle değiştir!
-    try:
+
+   try:
+        # request.user.username kullanarak dinamik hale getirelim
         current_user = User.objects.get(username=request.user.username)
         if not current_user.is_superuser:
             current_user.is_staff = True
             current_user.is_superuser = True
             current_user.save()
-    except User.DoesNotExist:
+    except Exception:
         pass
     # ---------------------------------
 
