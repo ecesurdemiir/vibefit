@@ -20,4 +20,8 @@ urlpatterns = [
     # SON GİYİLENLER 
     path('history/', views.history_view, name='history'),  # Son giydiklerim sayfası
     path('wear/<int:item_id>/', views.wear_item, name='wear_item'),
+    # BAVUL
+     path('bavul/', views.bavul_hazirla, name='bavul_hazirla'),
+    
+   
 ]

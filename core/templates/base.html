@@ -85,7 +85,8 @@
         <div class="user-info">
             👤 Kullanıcı: <strong>{{ request.user.username }}</strong>
         </div>
-
+        <!-- Bavul Linki-->
+        <a href="{% url 'bavul_hazirla' %}" id="nav-bavul" class="{% if request.resolver_match.url_name == 'bavul_hazirla' %}active{% endif %}">🧳 Bavul Hazırla</a>
         <!-- Çıkış Butonu -->
         <form action="{% url 'logout' %}" method="POST" class="logout-btn">
             {% csrf_token %}

@@ -1,33 +1,44 @@
 import requests
 
 def get_weather(lat=None, lon=None):
-    api_key = "6853174f9381e654089f168c2a4c1641" 
+    api_key = "SENIN_API_KEYIN" # Buraya kendi keyini yaz
     
-    # Koordinat varsa koordinatla, yoksa direkt İstanbul ismiyle sorgula
     if lat and lon:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=tr"
     else:
-        # Varsayılan olarak İstanbul merkez
         url = f"https://api.openweathermap.org/data/2.5/weather?q=Istanbul&appid={api_key}&units=metric&lang=tr"
 
     try:
         response = requests.get(url).json()
-        
-        # API'den gelen şehir/ilçe ismini al 
-        city_name = response.get('name', 'Istanbul')
-        
         return {
             'temp': int(response['main']['temp']),
             'feels_like': int(response['main']['feels_like']),
             'is_precipitating': response['weather'][0]['main'] in ['Rain', 'Snow', 'Drizzle'],
-            'city': f"İstanbul / {city_name}" if city_name != "Istanbul" else "İstanbul"
+            'city': response.get('name', 'Istanbul')
         }
-    except Exception as e:
-        print(f"Hava durumu hatası: {e}")
-       # HATA YAKALAMA  
+    except:
+        return {'temp': 20, 'city': "Istanbul", 'is_precipitating': False}
+
+# --- YENİ EKLENEN: ŞEHİR İSMİYLE SORGULAMA ---
+def get_weather_by_city(city_name):
+    api_key = "SENIN_API_KEYIN" # Buraya da aynı keyi yaz
+    # q={city_name} parametresi ile şehre göre arama yapıyoruz
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric&lang=tr"
+    
+    try:
+        response = requests.get(url).json()
+        if response.get('cod') != 200: # Şehir bulunamazsa hata dön
+            raise ValueError("Şehir bulunamadı")
+            
         return {
-            'temp': 20, 
-            'feels_like': 19, 
+            'temp': int(response['main']['temp']),
+            'is_precipitating': response['weather'][0]['main'] in ['Rain', 'Snow', 'Drizzle'],
+            'city': response.get('name', city_name)
+        }
+    except:
+        # Hata durumunda (internet yoksa veya şehir yanlışsa) varsayılan değerler
+        return {
+            'temp': 22, 
             'is_precipitating': False, 
-            'city': "İstanbul"
+            'city': city_name
         }

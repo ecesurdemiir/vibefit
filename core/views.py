@@ -170,3 +170,45 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
     return redirect('login')
+    # --- BAVUL HAZIRLAMA SİSTEMİ (Yeni Bölüm) ---
+
+@login_required(login_url='login')
+def bavul_hazirla(request):
+    # Kullanıcı şehir seçmiş mi kontrol et, seçmediyse boş kalsın
+    selected_city = request.GET.get('city')
+    recommended_items = None
+    weather_data = None
+
+    if selected_city:
+        # utils.py içinde şehir bazlı hava durumu fonksiyonu
+         
+        from .utils import get_weather_by_city #  utils.py'ye ekledik
+        weather_data = get_weather_by_city(selected_city)
+        
+        temp = weather_data['temp']
+        is_raining = weather_data['is_precipitating']
+
+        # Dolaptan bu şehrin havasına uyan temiz kıyafetleri seçiyoruz
+        recommended_items = ClothingItem.objects.filter(
+            user=request.user,
+            is_clean=True,
+            min_temp__lte=temp,
+            max_temp__gte=temp
+        )
+
+        if is_raining:
+            recommended_items = recommended_items.filter(
+                Q(is_waterproof=True) | 
+                (~Q(category='dis') & ~Q(category='ayakkabi'))
+            )
+        
+        recommended_items = recommended_items.order_by('-is_favorite', 'category')
+
+    context = {
+        'city': selected_city,
+        'weather': weather_data,
+        'recommended': recommended_items,
+        #popüler illeri ekledik
+        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Erzurum']
+    }
+    return render(request, 'bavul.html', context)

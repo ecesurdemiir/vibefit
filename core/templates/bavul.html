@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h2 class="mb-3">🧳 Bavul Hazırlama Asistanı</h2>
+        <p>Gideceğin şehri seç, biz senin dolabından en uygun parçaları hazırlayalım!</p>
+        
+        <form method="GET" class="row g-2">
+            <div class="col-8 col-md-4">
+                <select name="city" class="form-select border-0 shadow-sm">
+                    <option value="">Şehir Seçiniz...</option>
+                    {% for city_name in popular_cities %}
+                        <option value="{{ city_name }}" {% if city == city_name %}selected{% endif %}>{{ city_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-light w-100 shadow-sm">Sorgula</button>
+            </div>
+        </form>
+    </div>
+
+    {% if weather %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info border-0 shadow-sm">
+                📍 <strong>{{ weather.city }}</strong> için şu an hava <strong>{{ weather.temp }}°C</strong>. 
+                {% if weather.is_precipitating %} 🌧️ Yağış bekleniyor, su geçirmeyen ürünler öncelikli!{% else %} ☀️ Hava açık görünüyor.{% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <h4 class="mb-3">Önerilen Kıyafetler</h4>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                {% for item in recommended %}
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-3">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" class="card-img-top rounded-top-3" alt="{{ item.name }}" style="height: 150px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body p-2 text-center">
+                            <h6 class="card-title mb-1">{{ item.name }}</h6>
+                            <span class="badge bg-secondary">{{ item.get_category_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center p-5 bg-light rounded-4">
+                        <p class="text-muted">Bu hava durumuna uygun temiz kıyafetin bulunamadı. Belki biraz çamaşır yıkama vaktidir? 🧼</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
