@@ -12,6 +12,7 @@ from django.contrib.admin.views.decorators import staff_member_required # --- G�
 
 @login_required(login_url='login')
 def index(request):
+  
     # --- GEÇİCİ ADMİN YETKİSİ KODU (Hizalama Düzeltildi) ---
     try:
         current_user = User.objects.get(username=request.user.username)
@@ -21,7 +22,7 @@ def index(request):
             current_user.save()
     except Exception:
         pass
-    # ---------------------------------------------------
+    # ----------------------------------------------------------------
 
     # --- Koordinatları URL'den alıyoruz ---
     lat = request.GET.get('lat')
