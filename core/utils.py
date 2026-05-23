@@ -22,7 +22,7 @@ def get_weather(lat=None, lon=None):
 
 # --- YENİ EKLENEN: ŞEHİR İSMİYLE SORGULAMA ---
 def get_weather_by_city(city_name):
-    api_key = "SENIN_API_KEYIN" # Buraya da aynı keyi yaz
+    API_KEY = os.environ.get('WEATHER_API_KEY', '958a754ee97499705b4510c385b74408')
     # q={city_name} parametresi ile şehre göre arama yapıyoruz
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric&lang=tr"
     
