@@ -1,7 +1,8 @@
 import requests
+import os
 
 def get_weather(lat=None, lon=None):
-    api_key = "6853174f9381e654089f168c2a4c1641"
+   API_KEY = os.environ.get('WEATHER_API_KEY', '958a754ee97499705b4510c385b74408')
     
     if lat and lon:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=tr"
