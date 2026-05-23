@@ -2,7 +2,7 @@ import os
 import requests
 
 def get_weather(lat=None, lon=None):
-    API_KEY = os.environ.get('WEATHER_API_KEY', '958a754ee97499705b4510c385b74408') 
+    API_KEY = os.environ.get('WEATHER_API_KEY') 
     
     if not lat or not lon:
         lat, lon = "41.0082", "28.9784"
@@ -21,7 +21,7 @@ def get_weather(lat=None, lon=None):
         return {'temp': 20, 'feels_like': 20, 'is_precipitating': False, 'city': 'Istanbul'}
 
 def get_weather_by_city(city_name):
-    API_KEY = os.environ.get('WEATHER_API_KEY', '958a754ee97499705b4510c385b74408')
+    API_KEY = os.environ.get('WEATHER_API_KEY')
     
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric"
     
