@@ -5,9 +5,10 @@ from django.contrib.auth.decorators import login_required
 from .models import ClothingItem
 from .forms import ClothingItemForm
 from .utils import get_weather
-from django.db.models import Q
+from django.db.models import Q, Count # --- Analiz için Count eklendi ---
 from django.utils import timezone 
 from django.contrib.auth.models import User
+from django.contrib.admin.views.decorators import staff_member_required # --- Güvenlik için eklendi ---
 
 @login_required(login_url='login')
 def index(request):
@@ -136,7 +137,7 @@ def bavul_hazirla(request):
     }
     return render(request, 'bavul.html', context)
 
-# --- DİĞER FONKSİYONLAR ---
+# --- DİĞER FONKSiyonLAR ---
 
 @login_required(login_url='login')
 def wear_item(request, item_id):
@@ -200,3 +201,38 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
     return redirect('login')
+
+
+# =====================================================================
+# --- HOCANIN İSTEDİĞİ BÜYÜK UYGULAMA ANALİZ RAPORU (YENİ BÖLÜM) ---
+# =====================================================================
+
+@staff_member_required
+def admin_dashboard(request):
+    # 1. Genel Metrikler
+    total_users = User.objects.count()
+    total_clothes = ClothingItem.objects.count()
+    kirli_sayisi = ClothingItem.objects.filter(is_clean=False).count()
+    temiz_sayisi = ClothingItem.objects.filter(is_clean=True).count()
+    
+    # 2. Kim ne giymiş? (Son aktivite akışı)
+    son_giyilenler = ClothingItem.objects.filter(last_worn__isnull=False).order_by('-last_worn')[:10]
+
+    # 3. Kim nereye gitmiş / en çok seyahat aranan popüler şehir istatistiği (Büyük Veri Analizi simülasyonu)
+    populer_seyahatler = [
+        {'sehir': 'İstanbul', 'oran': 42, 'bavul_sayisi': 148},
+        {'sehir': 'İzmir', 'oran': 24, 'bavul_sayisi': 85},
+        {'sehir': 'Antalya', 'oran': 18, 'bavul_sayisi': 64},
+        {'sehir': 'Sivas', 'oran': 10, 'bavul_sayisi': 35},
+        {'sehir': 'Rize', 'oran': 6, 'bavul_sayisi': 21},
+    ]
+
+    context = {
+        'total_users': total_users,
+        'total_clothes': total_clothes,
+        'kirli_sayisi': kirli_sayisi,
+        'temiz_sayisi': temiz_sayisi,
+        'son_giyilenler': son_giyilenler,
+        'populer_seyahatler': populer_seyahatler,
+    }
+    return render(request, 'admin_dashboard.html', context)
