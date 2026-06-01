@@ -10,10 +10,11 @@
         body {
         background-image: url('{% static "img/login-bg.png" %}');
         
-        background-size: 100% 100%; 
+        background-size: contain; 
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
+        background-color:color-mix(in hsl shorter hue, color percentage, color percentage);
         height: 100vh;
         margin: 0; 
         display: flex;
