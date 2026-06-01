@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -6,8 +7,58 @@
     <title>Giriş Yap - VibeFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { width: 100%; max-width: 400px; border: none; border-radius: 15px; }
+        body {
+            background-image: url('{% static "img/login-bg.png" %}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.7); /* Cam efekti için şeffaflık */
+            backdrop-filter: blur(15px); /* Arka planı bulanıklaştırma */
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px; /* Yumuşak köşeler */
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); /* Şık bir gölge */
+        }
+    
+        /* İçerideki yazı yazma alanlarını (input) yumuşatıyoruz */
+        .form-control {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid rgba(255, 209, 220, 0.5) !important;
+            border-radius: 15px !important;
+            padding: 12px 15px !important;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02) !important;
+        }
+    
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(255, 209, 220, 0.6) !important;
+            background: #ffffff !important;
+        }
+    
+        /* Standart mavi butonu sihirli bir pudra pembesi butona çeviriyoruz */
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD1DC 0%, #ffb6c1 100%) !important;
+            border: none !important;
+            border-radius: 15px !important;
+            color: #2c3e50 !important;
+            font-weight: 700 !important;
+            padding: 12px !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+        }
+    
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 209, 220, 0.5) !important;
+            background: linear-gradient(135deg, #ffb6c1 0%, #FFD1DC 100%) !important;
+        }
     </style>
 </head>
 <body>
