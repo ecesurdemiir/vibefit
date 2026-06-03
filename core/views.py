@@ -35,8 +35,9 @@ def index(request):
     is_raining_or_snowing = weather_data['is_precipitating']
     current_city = weather_data['city']
 
+  
     if request.method == 'POST':
-        form = ClothingItemForm(request.POST)
+        form = ClothingItemForm(request.POST, request.FILES)
         if form.is_valid():
             yeni_kiyafet = form.save(commit=False)
             yeni_kiyafet.user = request.user
