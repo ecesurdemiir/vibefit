@@ -254,16 +254,22 @@ def admin_login_view(request):
 
 
 # --- 📊 YÖNETİM PANELİ ANA AKIŞI ---
+# --- 📊 GERÇEK VERİ TABANLI CANLI ANALİZ PANELI ---
 def admin_dashboard(request):
+    # Güvenlik Kontrolü: Giriş yapmamışsa veya admin değilse admin girişine yönlendir
     if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
         return redirect('admin_login')
 
+    # 1. Tamamen Gerçek ve Dinamik İstatistik Bilgileri
     total_users = User.objects.count()
     total_clothes = ClothingItem.objects.count()
     kirli_sayisi = ClothingItem.objects.filter(is_clean=False).count()
     temiz_sayisi = ClothingItem.objects.filter(is_clean=True).count()
-    son_giyilenler = ClothingItem.objects.filter(last_worn__isnull=False).order_by('-last_worn')[:10]
 
+    # 2. CANLI AKTİVİTE AKIŞI: Kullanıcıların seçtiği/giydiği son 5 kıyafeti getirir
+    son_giyilenler = ClothingItem.objects.filter(last_worn__isnull=False).order_by('-last_worn')[:5]
+
+    
     populer_seyahatler = [
         {'sehir': 'İstanbul', 'oran': 42, 'bavul_sayisi': 148},
         {'sehir': 'İzmir', 'oran': 24, 'bavul_sayisi': 85},

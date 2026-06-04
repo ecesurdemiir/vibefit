@@ -2,68 +2,107 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5" style="padding-top: 20px;">
-    <!-- 🚪 YÖNETİM PANELİ ÜST BAŞLIK VE ÇIKIŞ BUTONU ALANI -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 2px solid rgba(220,180,230,0.2);">
-        <h2 class="fw-bold" style="color: #3a0a2a; margin: 0; font-size: 26px;">📊 Sistem Analiz Paneli</h2>
-        
-        <!-- Özel Yönetim Çıkış Formu -->
+<div class="container mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(220,180,230,0.3);">
+        <div>
+            <h2 class="fw-bold" style="color: #3a0a2a; margin: 0; font-size: 24px;">📊 VibeFit Canlı Yönetim Paneli</h2>
+            <p class="text-muted small mb-0">Sistemdeki kullanıcı seçimleri ve gardırop hareketleri anlık olarak listelenir.</p>
+        </div>
         <form action="{% url 'logout' %}" method="POST" style="margin: 0;">
             {% csrf_token %}
-            <button type="submit" class="btn d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #cc3366, #990033); color: white; font-weight: 600; font-size: 13px; padding: 10px 20px; border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(204,51,102,0.25); transition: all 0.2s;">
-                <span>🚪</span> Güvenli Yönetici Çıkışı
+            <button type="submit" class="btn d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #cc3366, #990033); color: white; font-weight: 600; font-size: 13px; padding: 10px 20px; border-radius: 12px; border: none; transition: all 0.2s; box-shadow: 0 4px 12px rgba(204,51,102,0.2);">
+                🚪 Güvenli Çıkış
             </button>
         </form>
     </div>
 
-    <div class="row">
-        <!-- Sol Blok: Şehir Dağılımı -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
-                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">📍 En Çok Seyahat Edilen & Bavul Hazırlanan Şehirler</h4>
-                <p class="text-muted small">Kullanıcıların seyahat planlarında en çok tercih ettiği lokasyonların dağılımı:</p>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">İstanbul <span class="fw-semibold text-purple">148 Kez Planlandı (%42)</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">İzmir <span class="fw-semibold text-purple">85 Kez Planlandı (%24)</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Antalya <span class="fw-semibold text-purple">64 Kez Planlandı (%18)</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Sivas <span class="fw-semibold text-purple">35 Kez Planlandı (%10)</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Rize <span class="fw-semibold text-purple">21 Kez Planlandı (%6)</span></li>
-                </ul>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm p-3 text-center" style="border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(220,180,230,0.2);">
+                <div class="fs-3 mb-1">👥</div>
+                <div class="text-muted small fw-semibold">Sistemdeki Üye</div>
+                <div class="fs-4 fw-bold text-dark mt-1">{{ total_users }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm p-3 text-center" style="border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(220,180,230,0.2);">
+                <div class="fs-3 mb-1">👚</div>
+                <div class="text-muted small fw-semibold">Toplam Kıyafet</div>
+                <div class="fs-4 fw-bold text-dark mt-1">{{ total_clothes }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm p-3 text-center" style="border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(220,180,230,0.2);">
+                <div class="fs-3 mb-1">🧼</div>
+                <div class="text-muted small fw-semibold">Temiz Parçalar</div>
+                <div class="fs-4 fw-bold text-success mt-1">{{ temiz_sayisi }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm p-3 text-center" style="border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(220,180,230,0.2);">
+                <div class="fs-3 mb-1">🧺</div>
+                <div class="text-muted small fw-semibold">Kirli Sepeti</div>
+                <div class="fs-4 fw-bold text-danger mt-1">{{ kirli_sayisi }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 h-100" style="border-radius: 18px; background: rgba(255,255,255,0.85); border: 1px solid rgba(220,180,230,0.25);">
+                <h4 class="fw-bold text-dark mb-2" style="font-size: 16px;">🔄 Canlı Kullanıcı Seçim Akışı</h4>
+                <p class="text-muted small mb-3">Kullanıcıların gardıroplarından seçip "Giyildi" olarak işaretlediği gerçek parçalar:</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr style="font-size: 12px; color: #7c2d8a; border-bottom: 2px solid rgba(220,180,230,0.15);">
+                                <th>Kullanıcı</th>
+                                <th>Seçtiği Kıyafet</th>
+                                <th>Kategori</th>
+                                <th>Zaman</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 13.5px;">
+                            {% for item in son_giyilenler %}
+                            <tr>
+                                <td class="fw-bold" style="color: #3a0a2a;">👤 {{ item.user.username }}</td>
+                                <td class="fw-semibold">{{ item.name }}</td>
+                                <td>
+                                    {% if item.category == 'ust' %}👕 Üst Giyim
+                                    {% elif item.category == 'alt' %}🩳 Alt Giyim
+                                    {% elif item.category == 'dis' %} Jacket 🧥 Dış Giyim
+                                    {% elif item.category == 'ayakkabi' %}👟 Ayakkabı
+                                    {% else %}💎 Aksesuar{% endif %}
+                                </td>
+                                <td class="text-muted small">{{ item.last_worn|timesince }} önce</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-muted text-center py-4 small">Sistemde henüz bir kıyafet seçimi/giyilme aksiyonu gerçekleşmedi.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Sağ Blok: Aktivite Akışı -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
-                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">👕 Son Kullanıcı Aktivite Akışı</h4>
-                <p class="text-muted small">Kim Ne Giydi?</p>
-                <table class="table table-hover mt-2">
-                    <thead>
-                        <tr>
-                            <th style="font-size: 13px; color: #7c2d8a;">Kullanıcı</th>
-                            <th style="font-size: 13px; color: #7c2d8a;">Tercih Ettiği Kıyafet</th>
-                            <th style="font-size: 13px; color: #7c2d8a;">Zaman</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">kot şort <span class="text-muted small">(Alt Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
-                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">crop <span class="text-muted small">(Üst Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
-                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">bileklik <span class="text-muted small">(Aksesuar)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
-                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">kot ceket <span class="text-muted small">(Dış Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
-                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 burcinsari</td><td style="font-size: 13.5px;">crop <span class="text-muted small">(Dış Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 59 dakika önce</td></tr>
-                    </tbody>
-                </table>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4 h-100" style="border-radius: 18px; background: rgba(255,255,255,0.85); border: 1px solid rgba(220,180,230,0.25);">
+                <h4 class="fw-bold text-dark mb-2" style="font-size: 16px;">📍 En Çok Seyahat Edilen Lokasyonlar</h4>
+                <p class="text-muted small mb-3">Kullanıcıların seyahat planlarında en çok tercih ettiği popüler şehirler:</p>
+                <ul class="list-group list-group-flush">
+                    {% for seyahat in populer_seyahatler %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent" style="font-size: 14px; border-bottom: 1px solid rgba(220,180,230,0.1);">
+                        <span>🏙️ {{ seyahat.sehir }}</span>
+                        <span class="fw-semibold" style="color: #7c2d8a;">{{ seyahat.bavul_sayisi }} Plan (%{{ seyahat.oran }})</span>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Küçük bir buton animasyonu efekti */
-    form button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(204,51,102,0.4) !important;
-    }
-    .text-purple { color: #7c2d8a; }
-</style>
 {% endblock %}
