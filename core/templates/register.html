@@ -10,13 +10,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            /* GÖRSEL ARKA PLAN BURAYA EKLENDİ */
             background-image: url('{% static "img/login-bg.png" %}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -25,7 +23,6 @@
             padding: 40px 20px;
         }
 
-        /* Glassmorphic Bento Kart Yapısı (Arka plan resminin üzerinde çok şık durur) */
         .glass-card {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
@@ -37,8 +34,6 @@
             max-width: 500px;
             width: 100%;
         }
-
-        .gc-title { font-size: 24px; font-weight: 700; color: #3a0a2a; }
         
         .auth-form p { 
             margin-bottom: 18px; 
@@ -67,7 +62,7 @@
         .auth-form p input:focus {
             border-color: #a855f7;
             background: #fff;
-            box-shadow: 0 0 8px rgba(168,85,247,0.15);
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.15);
         }
 
         .auth-form .helptext, .auth-form .helptext ul {
@@ -130,8 +125,8 @@
 
 <div class="glass-card">
     <div class="text-center d-flex flex-column align-items-center mb-4">
-        <div style="font-size: 2.5rem; margin-bottom: 6px;"></div>
-        <span class="gc-title">VibeFit</span>
+        <img src="{% static 'img/logo.png' %}" alt="VibeFit Logo" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #FFD1DC; margin-bottom: 12px; object-fit: cover;">
+        
         <p class="text-muted small mt-1 mb-0">Kendi akıllı dolabını kurmaya başla!</p>
     </div>
     
@@ -146,4 +141,9 @@
     
     <div class="auth-footer">
         Zaten bir dolabın var mı? <br> 
-        <a href="{% url 'login' %}" class="auth-
+        <a href="{% url 'login' %}" class="auth-link mt-1 d-inline-block">Giriş Yap</a>
+    </div>
+</div>
+
+</body>
+</html>

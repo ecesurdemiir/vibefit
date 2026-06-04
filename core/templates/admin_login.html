@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5" style="padding-top: 20px;">
+    <div class="row">
+        <!-- Sol Blok: Şehir Dağılımı -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
+                <h4 class="fw-bold text-dark mb-3">📍 En Çok Seyahat Edilen & Bavul Hazırlanan Şehirler</h4>
+                <p class="text-muted small">Kullanıcıların seyahat planlarında en çok tercih ettiği lokasyonların dağılımı:</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">İstanbul <span>148 Kez Planlandı (%42)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">İzmir <span>85 Kez Planlandı (%24)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Antalya <span>64 Kez Planlandı (%18)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Sivas <span>35 Kez Planlandı (%10)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Rize <span>21 Kez Planlandı (%6)</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sağ Blok: Aktivite Akışı -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
+                <h4 class="fw-bold text-dark mb-3">👕 Son Kullanıcı Aktivite Akışı</h4>
+                <p class="text-muted small">Kim Ne Giydi?</p>
+                <table class="table table-hover mt-2">
+                    <thead>
+                        <tr>
+                            <th>Kullanıcı</th>
+                            <th>Tercih Ettiği Kıyafet</th>
+                            <th>Zaman</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>👤 Ece</td><td>kot şort <span class="text-muted small">(Alt Giyim)</span></td><td>1 saat, 8 dakika önce</td></tr>
+                        <tr><td>👤 Ece</td><td>crop <span class="text-muted small">(Üst Giyim)</span></td><td>1 saat, 8 dakika önce</td></tr>
+                        <tr><td>👤 Ece</td><td>bileklik <span class="text-muted small">(Aksesuar)</span></td><td>1 saat, 8 dakika önce</td></tr>
+                        <tr><td>👤 Ece</td><td>kot ceket <span class="text-muted small">(Dış Giyim)</span></td><td>1 saat, 8 dakika önce</td></tr>
+                        <tr><td>👤 burcinsari</td><td>crop <span class="text-muted small">(Dış Giyim)</span></td><td>1 saat, 59 dakika önce</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

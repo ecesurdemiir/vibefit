@@ -7,83 +7,132 @@
     <title>Giriş Yap - VibeFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-        background-image: url('{% static "img/login-bg.png" %}');
-        
-        background-size: 100% 100%; 
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        height: 100vh;
-        margin: 0; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-        
-        .login-card {
+            background-image: url('{% static "img/login-bg.png" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            padding: 40px 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(220, 180, 230, 0.3);
+            padding: 40px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
             width: 100%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.7); /* Cam efekti için şeffaflık */
-            backdrop-filter: blur(15px); /* Arka planı bulanıklaştırma */
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 25px; /* Yumuşak köşeler */
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); /* Şık bir gölge */
         }
-    
-        /* İçerideki yazı yazma alanlarını (input) yumuşatıyoruz */
-        .form-control {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border: 1px solid rgba(255, 209, 220, 0.5) !important;
-            border-radius: 15px !important;
-            padding: 12px 15px !important;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02) !important;
+        
+        .auth-form p { 
+            margin-bottom: 18px; 
+            display: flex;
+            flex-direction: column;
         }
-    
-        .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(255, 209, 220, 0.6) !important;
-            background: #ffffff !important;
+        
+        .auth-form p label { 
+            font-size: 13px; 
+            color: #7c2d8a; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
         }
-    
-        /* Standart mavi butonu sihirli bir pudra pembesi butona çeviriyoruz */
-        .btn-primary {
-            background: linear-gradient(135deg, #FFD1DC 0%, #ffb6c1 100%) !important;
-            border: none !important;
-            border-radius: 15px !important;
-            color: #2c3e50 !important;
-            font-weight: 700 !important;
-            padding: 12px !important;
-            transition: transform 0.2s, box-shadow 0.2s !important;
+        
+        .auth-form p input {
+            width: 100% !important; 
+            padding: 10px 14px; 
+            border: 1px solid rgba(220,180,230,0.4);
+            border-radius: 12px; 
+            font-size: 14px; 
+            background: rgba(255,255,255,0.9); 
+            outline: none;
+            transition: all 0.2s;
         }
-    
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255, 209, 220, 0.5) !important;
-            background: linear-gradient(135deg, #ffb6c1 0%, #FFD1DC 100%) !important;
+        
+        .auth-form p input:focus {
+            border-color: #a855f7;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(168,85,247,0.15);
+        }
+
+        .gbtn {
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 12px; 
+            font-size: 14px; 
+            font-weight: 600;
+            border: none; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+            transition: all .2s; 
+            margin-top: 25px;
+        }
+        
+        .gbtn-primary { 
+            background: linear-gradient(135deg, #e879b0, #a855f7); 
+            color: #fff; 
+            box-shadow: 0 4px 12px rgba(168,85,247,0.2); 
+        }
+        
+        .gbtn-primary:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 6px 16px rgba(168,85,247,0.3); 
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #553555;
+            line-height: 1.6;
+        }
+        
+        .auth-link {
+            color: #a855f7;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .auth-link:hover {
+            color: #e879b0;
         }
     </style>
 </head>
 <body>
 
-<div class="card shadow login-card">
-    <div class="card-body p-5">
-        <h2 class="text-center fw-bold mb-4">VibeFit</h2>
-        <p class="text-center text-muted mb-4">Akıllı dolabına hoş geldin!</p>
+<div class="glass-card">
+    <div class="text-center d-flex flex-column align-items-center mb-4">
+        <img src="{% static 'img/logo.png' %}" alt="VibeFit Logo" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #FFD1DC; margin-bottom: 12px; object-fit: cover;">
         
-        <form method="POST">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">{{ field.label }}</label>
-                    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" class="form-control" required>
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-2">Giriş Yap</button>
-        </form>
+        <p class="text-muted small mt-1 mb-0">Gardırobuna erişmek için bilgilerini gir.</p>
+    </div>
+    
+    <form method="POST" class="auth-form">
+        {% csrf_token %}
+        {{ form.as_p }}
         
-        <hr class="my-4">
-        <p class="text-center mb-0">Henüz bir dolabın yok mu? <br> <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Yeni Dolap Oluştur</a></p>
+        <button type="submit" class="gbtn gbtn-primary">Giriş Yap</button>
+    </form>
+    
+    <hr style="border-color: rgba(220,180,230,0.3); margin: 22px 0;">
+    
+    <div class="auth-footer">
+        Henüz bir hesabın yok mu? <br> 
+        <a href="{% url 'register' %}" class="auth-link mt-1 d-inline-block">Hemen Kayıt Ol</a>
     </div>
 </div>
 

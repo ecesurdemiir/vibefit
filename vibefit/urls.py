@@ -26,7 +26,8 @@ urlpatterns = [
     path('wear/<int:item_id>/', views.wear_item, name='wear_item'),
     # BAVUL
      path('bavul/', views.bavul_hazirla, name='bavul_hazirla'),
-    
+    # ADMİN GİRİŞ
+    path('yonetim-login/', views.admin_login_view, name='admin_login'),
     # ADMİN PANELİ
     path('yonetim-paneli/', views.admin_dashboard, name='admin_dashboard'),
    

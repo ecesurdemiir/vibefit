@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import ClothingItem
@@ -8,8 +8,8 @@ from .utils import get_weather
 from django.db.models import Q, Count
 from django.utils import timezone 
 from django.contrib.auth.models import User
-from django.contrib.admin.views.decorators import staff_member_required
 
+# --- ANA SAYFA (HAVA DURUMU & KOMBİN ÖNERİSİ) ---
 @login_required(login_url='login')
 def index(request):
     # --- GEÇİCİ ADMİN YETKİSİ KODU ---
@@ -169,6 +169,7 @@ def history_view(request):
     history = ClothingItem.objects.filter(user=request.user, last_worn__isnull=False).order_by('-last_worn')
     return render(request, 'history.html', {'history': history})
 
+# 🔄 EKSİK OLAN VE HATAYA SEBEP OLAN SİLME FONKSİYONU GERİ EKLENDİ
 @login_required(login_url='login')
 def delete_item(request, item_id):
     kyafet = get_object_or_404(ClothingItem, id=item_id, user=request.user)
@@ -197,7 +198,7 @@ def toggle_favorite(request, item_id):
     return redirect('index')
 
 
-# --- AUTH SİSTEMİ ---
+# --- AUTH SİSTEMİ (STANDART KULLANICI) ---
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -226,9 +227,37 @@ def logout_view(request):
     return redirect('login')
 
 
-# --- ANALIZ PANELI ---
-@staff_member_required
+# --- 🔐 ADMİN ÖZEL GİRİŞ SAYFASI FONKSİYONU ---
+def admin_login_view(request):
+    error_msg = None
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            
+            if user is not None:
+                if user.is_staff or user.is_superuser:
+                    login(request, user)
+                    return redirect('admin_dashboard')
+                else:
+                    error_msg = "Bu hesaba ait yönetim paneli erişim yetkisi bulunamadı."
+            else:
+                error_msg = "Kullanıcı adı veya şifre hatalı."
+        else:
+            error_msg = "Lütfen giriş bilgilerini kontrol edin."
+    else:
+        form = AuthenticationForm()
+        
+    return render(request, 'admin_login.html', {'form': form, 'error_msg': error_msg})
+
+
+# --- 📊 YÖNETİM PANELİ ANA AKIŞI ---
 def admin_dashboard(request):
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return redirect('admin_login')
+
     total_users = User.objects.count()
     total_clothes = ClothingItem.objects.count()
     kirli_sayisi = ClothingItem.objects.filter(is_clean=False).count()

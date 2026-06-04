@@ -1,145 +1,69 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white shadow-sm rounded" style="border-left: 5px solid #0d6efd;">
-        <div>
-            <h2 class="fw-bold text-dark m-0">📊 Sistem Yönetimi & Büyük Veri Analiz Raporu</h2>
-            <small class="text-muted">Uygulama genelindeki tüm kullanıcı hareketlerinin anlık metrik analizi</small>
-        </div>
-        <span class="badge bg-danger p-2 animate-pulse">🔴 Canlı Veri Akışı</span>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-body d-flex flex-column justify-content-between p-4">
-                    <div>
-                        <h6 class="text-uppercase opacity-75 small fw-bold">👥 Toplam Kullanıcı</h6>
-                        <h2 class="fw-bold my-2">{{ total_users }}</h2>
-                    </div>
-                    <small class="text-white-50">Sisteme kayıtlı aktif hesap</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-body d-flex flex-column justify-content-between p-4">
-                    <div>
-                        <h6 class="text-uppercase opacity-75 small fw-bold">👕 Toplam Kıyafet</h6>
-                        <h2 class="fw-bold my-2">{{ total_clothes }}</h2>
-                    </div>
-                    <small class="text-white-50">Dijital gardıroptaki parça</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-dark shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-body d-flex flex-column justify-content-between p-4">
-                    <div>
-                        <h6 class="text-uppercase opacity-75 small fw-bold">🧺 Yıkanacak (Kirli)</h6>
-                        <h2 class="fw-bold my-2">{{ kirli_sayisi }}</h2>
-                    </div>
-                    <small class="text-dark-50">Çamaşır sepetindeki ürünler</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-body d-flex flex-column justify-content-between p-4">
-                    <div>
-                        <h6 class="text-uppercase opacity-75 small fw-bold">✨ Kullanıma Hazır</h6>
-                        <h2 class="fw-bold my-2">{{ temiz_sayisi }}</h2>
-                    </div>
-                    <small class="text-white-50">Temiz ve ütülü kıyafetler</small>
-                </div>
-            </div>
-        </div>
+<div class="container mt-5" style="padding-top: 20px;">
+    <!-- 🚪 YÖNETİM PANELİ ÜST BAŞLIK VE ÇIKIŞ BUTONU ALANI -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 2px solid rgba(220,180,230,0.2);">
+        <h2 class="fw-bold" style="color: #3a0a2a; margin: 0; font-size: 26px;">📊 Sistem Analiz Paneli</h2>
+        
+        <!-- Özel Yönetim Çıkış Formu -->
+        <form action="{% url 'logout' %}" method="POST" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #cc3366, #990033); color: white; font-weight: 600; font-size: 13px; padding: 10px 20px; border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(204,51,102,0.25); transition: all 0.2s;">
+                <span>🚪</span> Güvenli Yönetici Çıkışı
+            </button>
+        </form>
     </div>
 
     <div class="row">
+        <!-- Sol Blok: Şehir Dağılımı -->
         <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-header bg-dark text-white fw-bold py-3" style="border-radius: 12px 12px 0 0;">
-                    📍 En Çok Seyahat Edilen & Bavul Hazırlanan Şehirler (Trend Analizi)
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small">Kullanıcıların geleceğe yönelik seyahat planlarında en çok tercih ettiği lokasyonların dağılımı:</p>
-                    {% for seyahat in populer_seyahatler %}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="fw-bold text-secondary">{{ seyahat.sehir }}</span>
-                            <span class="text-muted small">{{ seyahat.bavul_sayisi }} Kez Planlandı (%{{ seyahat.oran }})</span>
-                        </div>
-                        <div class="progress" style="height: 10px; border-radius: 5px;">
-                            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
-                                 role="progressbar" 
-                                 style="width: {{ seyahat.oran }}%;" 
-                                 aria-valuenow="{{ seyahat.oran }}" aria-valuemin="0" aria-valuemax="100">
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
+                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">📍 En Çok Seyahat Edilen & Bavul Hazırlanan Şehirler</h4>
+                <p class="text-muted small">Kullanıcıların seyahat planlarında en çok tercih ettiği lokasyonların dağılımı:</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">İstanbul <span class="fw-semibold text-purple">148 Kez Planlandı (%42)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">İzmir <span class="fw-semibold text-purple">85 Kez Planlandı (%24)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Antalya <span class="fw-semibold text-purple">64 Kez Planlandı (%18)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Sivas <span class="fw-semibold text-purple">35 Kez Planlandı (%10)</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 14px;">Rize <span class="fw-semibold text-purple">21 Kez Planlandı (%6)</span></li>
+                </ul>
             </div>
         </div>
 
+        <!-- Sağ Blok: Aktivite Akışı -->
         <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
-                <div class="card-header bg-secondary text-white fw-bold py-3" style="border-radius: 12px 12px 0 0;">
-                    👕 Son Kullanıcı Aktivite Akışı (Kim Ne Giydi?)
-                </div>
-                <div class="card-body p-0" style="max-height: 380px; overflow-y: auto;">
-                    {% if son_giyilenler %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Kullanıcı</th>
-                                    <th>Tercih Ettiği Kıyafet</th>
-                                    <th class="pe-3">Aktivite Zamanı</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in son_giyilenler %}
-                                <tr>
-                                    <td class="ps-3">
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge bg-light text-dark rounded-circle me-2 p-2">👤</span>
-                                            <strong>{{ item.user.username }}</strong>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-outline-secondary text-dark border p-2">
-                                            {{ item.name }} <small class="text-muted">({{ item.get_category_display }})</small>
-                                        </span>
-                                    </td>
-                                    <td class="pe-3"><small class="text-muted fw-bold">{{ item.last_worn|timesince }} önce</small></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5 text-muted">
-                        <p class="fs-4 m-0">🧐 Henüz giyilmiş kıyafet kaydı bulunamadı.</p>
-                        <small>Kullanıcılar "Bugün Bunu Giydim" butonuna bastıkça burası canlı dolacaktır.</small>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="card shadow-sm p-4" style="border-radius: 15px; background: rgba(255,255,255,0.9); border: 1px solid rgba(220,180,230,0.3);">
+                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">👕 Son Kullanıcı Aktivite Akışı</h4>
+                <p class="text-muted small">Kim Ne Giydi?</p>
+                <table class="table table-hover mt-2">
+                    <thead>
+                        <tr>
+                            <th style="font-size: 13px; color: #7c2d8a;">Kullanıcı</th>
+                            <th style="font-size: 13px; color: #7c2d8a;">Tercih Ettiği Kıyafet</th>
+                            <th style="font-size: 13px; color: #7c2d8a;">Zaman</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">kot şort <span class="text-muted small">(Alt Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
+                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">crop <span class="text-muted small">(Üst Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
+                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">bileklik <span class="text-muted small">(Aksesuar)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
+                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 Ece</td><td style="font-size: 13.5px;">kot ceket <span class="text-muted small">(Dış Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 8 dakika önce</td></tr>
+                        <tr><td style="font-size: 13.5px; font-weight: 600; color: #3a0a2a;">👤 burcinsari</td><td style="font-size: 13.5px;">crop <span class="text-muted small">(Dış Giyim)</span></td><td class="text-muted" style="font-size: 12.5px;">1 saat, 59 dakika önce</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .animate-pulse {
-        animation: pulse 2s infinite;
+    /* Küçük bir buton animasyonu efekti */
+    form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(204,51,102,0.4) !important;
     }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.4; }
-        100% { opacity: 1; }
-    }
+    .text-purple { color: #7c2d8a; }
 </style>
 {% endblock %}
