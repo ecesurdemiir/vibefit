@@ -34,7 +34,6 @@
 <div class="container">
     <div class="gardrop-grid">
         
-        <!-- SOL SÜTUN: FORM -->
         <div class="glass-card" style="height: fit-content;">
             <div class="gc-head">
                 <span class="gc-title">➕ Yeni Kıyafet Ekle</span>
@@ -47,7 +46,6 @@
             </form>
         </div>
 
-        <!-- SAĞ SÜTUN: TÜM LİSTE -->
         <div class="glass-card">
             <div class="gc-head">
                 <span class="gc-title"> Tüm Gardırobum ({{ items.count }} Parça)</span>
@@ -56,7 +54,19 @@
 
             {% for item in items %}
             <div class="cl-row">
-                <div class="rounded-circle bg-light me-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border: 1px dashed #ccc; font-size: 1.1rem;">👔</div>
+                <div class="rounded-circle bg-light me-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border: 1px dashed #ccc; font-size: 1.2rem; background-color: #faf5ff !important;">
+                    {% if item.category == 'ust' %}
+                        👕
+                    {% elif item.category == 'alt' %}
+                        🩳
+                    {% elif item.category == 'dis' %}
+                        🧥
+                    {% elif item.category == 'ayakkabi' %}
+                        👟
+                    {% else %}
+                        💎
+                    {% endif %}
+                </div>
                 
                 <div style="flex:1;">
                   <div class="cl-name">{{ item.name }}</div>
