@@ -1,60 +1,132 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <h2 class="mb-3">🧳 Bavul Hazırlama Asistanı</h2>
-        <p>Gideceğin şehri seç, biz senin dolabından en uygun parçaları hazırlayalım!</p>
-        
-        <form method="GET" class="row g-2">
-            <div class="col-8 col-md-4">
-                <select name="city" class="form-select border-0 shadow-sm">
-                    <option value="">Şehir Seçiniz...</option>
-                    {% for city_name in popular_cities %}
-                        <option value="{{ city_name }}" {% if city == city_name %}selected{% endif %}>{{ city_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-4 col-md-2">
-                <button type="submit" class="btn btn-light w-100 shadow-sm">Sorgula</button>
-            </div>
-        </form>
+<style>
+    .bavul-header-banner {
+        background: linear-gradient(135deg, #c4a0f0 0%, #f8a4d0 50%, #90c4f8 100%);
+        border-radius: 20px; padding: 24px 30px; margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(196,160,240,0.15);
+    }
+    .bavul-header-banner h2 { font-size: 22px; font-weight: 600; color: #3a0a2a; }
+    .bavul-header-banner p { font-size: 13px; color: rgba(60,10,45,0.7); margin-top: 4px; }
+    
+    .city-badge {
+        padding: 8px 16px; border-radius: 12px; background: rgba(255,255,255,0.6);
+        color: #7c2d8a; font-weight: 600; text-decoration: none; font-size: 13px;
+        transition: all 0.2s; border: 1px solid rgba(220,180,230,0.2);
+    }
+    .city-badge:hover { background: #fff; transform: translateY(-1px); color: #b5408a; }
+    
+    .bavul-grid-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 0; border-bottom: 1px solid rgba(220,180,230,0.2);
+    }
+    .bavul-grid-row:last-of-type { border-bottom: none; }
+    .item-name { font-size: 14px; font-weight: 600; color: #3a0a2a; }
+</style>
+
+<div class="container">
+    
+    <!-- ÜST BANNER -->
+    <div class="bavul-header-banner">
+        <h2>🧳 Akıllı Seyahat Bavulu Hazırlayıcı</h2>
+        <p>Gideceğin lokasyona göre dolabındaki en uyumlu kombinleri ve temiz alternatifleri senin için tek bir valizde topluyoruz.</p>
     </div>
 
-    {% if weather %}
     <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-info border-0 shadow-sm">
-                📍 <strong>{{ weather.city }}</strong> için şu an hava <strong>{{ weather.temp }}°C</strong>. 
-                {% if weather.is_precipitating %} 🌧️ Yağış bekleniyor, su geçirmeyen ürünler öncelikli!{% else %} ☀️ Hava açık görünüyor.{% endif %}
+        <!-- SOL SÜTUN: ŞEHİR SEÇİMİ VE HAVA DURUMU -->
+        <div class="col-md-4">
+            <div class="glass-card">
+                <div class="gc-head">
+                    <span class="gc-title">📍 Destinasyon Seç</span>
+                    <span class="badge-custom b-rose">Rota</span>
+                </div>
+                
+                <form method="GET" action="">
+                    <select class="form-select mb-3" name="city" style="border-radius: 10px; border-color: rgba(220,180,230,0.4); font-size: 13px; padding: 10px;">
+                        <option value="">Gideceğin Şehri Seç...</option>
+                        {% for p_city in popular_cities %}
+                            <option value="{{ p_city }}" {% if city == p_city %}selected{% endif %}>{{ p_city }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn w-100 fw-bold" style="background: linear-gradient(135deg, #c060e0, #e879b0); color: white; border-radius: 10px; font-size: 13px; padding: 10px;">
+                        ✨ Bavul Listesi Oluştur
+                    </button>
+                </form>
+
+                <!-- Popüler Hızlı Seçim Şehirleri -->
+                <div class="mt-4">
+                    <p style="font-size: 12px; font-weight: 600; color: #a07090; margin-bottom: 10px;">🔥 Popüler Rotalar:</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="?city=İstanbul" class="city-badge">İstanbul</a>
+                        <a href="?city=İzmir" class="city-badge">İzmir</a>
+                        <a href="?city=Antalya" class="city-badge">Antalya</a>
+                        <a href="?city=Eskişehir" class="city-badge">Eskişehir</a>
+                    </div>
+                </div>
             </div>
+
+            <!-- SEÇİLEN ŞEHRİN HAVA DURUMU -->
+            {% if weather %}
+            <div class="glass-card text-center" style="background: linear-gradient(135deg, #ede9fe, #fce4f3);">
+                <div class="gc-title mb-2" style="font-size:14px;">🎯 Hedef Lokasyon Durumu</div>
+                <h3 class="fw-bold text-dark mb-1" style="font-size: 32px;">{{ weather.temp }}°C</h3>
+                <div class="text-muted small fw-bold">{{ city }}</div>
+                <span class="badge-custom b-rose mt-2">
+                    {% if weather.is_precipitating %} 🌧️ Yağış Var {% else %} 🌤️ Hava Güzel {% endif %}
+                </span>
+            </div>
+            {% endif %}
         </div>
 
-        <div class="col-md-12">
-            <h4 class="mb-3">Önerilen Kıyafetler</h4>
-            <div class="row row-cols-2 row-cols-md-4 g-3">
-                {% for item in recommended %}
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm rounded-3">
+        <!-- SAĞ SÜTUN: BAVUL İÇERİĞİ -->
+        <div class="col-md-8">
+            <div class="glass-card">
+                <div class="gc-head">
+                    <span class="gc-title">🧳 Valizine Koyman Gerekenler</span>
+                    {% if city %}
+                        <span class="badge-custom b-green">{{ city }} İçin Hazırlandı</span>
+                    {% else %}
+                        <span class="badge-custom b-lav">Bekliyor</span>
+                    {% endif %}
+                </div>
+
+                {% if recommended %}
+                    {% for item in recommended %}
+                    <div class="bavul-grid-row">
                         {% if item.image %}
-                            <img src="{{ item.image.url }}" class="card-img-top rounded-top-3" alt="{{ item.name }}" style="height: 150px; object-fit: cover;">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #fff;">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border: 1px dashed #ccc; font-size: 1.1rem;">👔</div>
                         {% endif %}
-                        <div class="card-body p-2 text-center">
-                            <h6 class="card-title mb-1">{{ item.name }}</h6>
-                            <span class="badge bg-secondary">{{ item.get_category_display }}</span>
+                        
+                        <div style="flex: 1; margin-left: 8px;">
+                            <div class="item-name">{{ item.name }}</div>
+                            <small class="text-muted">{{ item.get_style_display }} · {{ item.get_category_display }}</small>
+                        </div>
+                        
+                        <div>
+                            {% if item.is_favorite %}
+                                <span class="badge-custom b-rose">🌟 Favori Parçan</span>
+                            {% endif %}
+                            <span class="badge-custom b-lav" style="margin-left: 4px;">Eklendi</span>
                         </div>
                     </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <div class="text-center p-5 bg-light rounded-4">
-                        <p class="text-muted">Bu hava durumuna uygun temiz kıyafetin bulunamadı. Belki biraz çamaşır yıkama vaktidir? 🧼</p>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center p-5 text-muted" style="font-size: 13px;">
+                        Lokasyona göre valiz içeriğini görmek için lütfen sol taraftan bir şehir seçin veya popüler rotalara tıklayın.
                     </div>
-                </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
+
+<script>
+    window.onload = function() {
+        const activeNav = document.getElementById('nav-bavul');
+        if (activeNav) activeNav.classList.add('active');
+    };
+</script>
 {% endblock %}

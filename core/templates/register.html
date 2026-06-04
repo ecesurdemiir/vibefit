@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -6,29 +7,143 @@
     <title>Kayıt Ol - VibeFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .register-card { width: 100%; max-width: 450px; border: none; border-radius: 15px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            /* GÖRSEL ARKA PLAN BURAYA EKLENDİ */
+            background-image: url('{% static "img/login-bg.png" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            padding: 40px 20px;
+        }
+
+        /* Glassmorphic Bento Kart Yapısı (Arka plan resminin üzerinde çok şık durur) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(220, 180, 230, 0.3);
+            padding: 40px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .gc-title { font-size: 24px; font-weight: 700; color: #3a0a2a; }
+        
+        .auth-form p { 
+            margin-bottom: 18px; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .auth-form p label { 
+            font-size: 13px; 
+            color: #7c2d8a; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+        }
+        
+        .auth-form p input {
+            width: 100% !important; 
+            padding: 10px 14px; 
+            border: 1px solid rgba(220,180,230,0.4);
+            border-radius: 12px; 
+            font-size: 14px; 
+            background: rgba(255,255,255,0.9); 
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .auth-form p input:focus {
+            border-color: #a855f7;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(168,85,247,0.15);
+        }
+
+        .auth-form .helptext, .auth-form .helptext ul {
+            font-size: 11px;
+            color: #553555;
+            margin-top: 6px;
+            padding-left: 12px;
+            line-height: 1.5;
+            list-style-type: disc;
+        }
+
+        .gbtn {
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 12px; 
+            font-size: 14px; 
+            font-weight: 600;
+            border: none; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+            transition: all .2s; 
+            margin-top: 25px;
+        }
+        
+        .gbtn-primary { 
+            background: linear-gradient(135deg, #e879b0, #a855f7); 
+            color: #fff; 
+            box-shadow: 0 4px 12px rgba(168,85,247,0.2); 
+        }
+        
+        .gbtn-primary:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 6px 16px rgba(168,85,247,0.3); 
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #553555;
+            line-height: 1.6;
+        }
+        
+        .auth-link {
+            color: #a855f7;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .auth-link:hover {
+            color: #e879b0;
+        }
     </style>
 </head>
 <body>
 
-<div class="card shadow register-card">
-    <div class="card-body p-5">
-        <h2 class="text-center fw-bold mb-4">VibeFit 🚀</h2>
-        <p class="text-center text-muted mb-4">Kendi akıllı dolabını kurmaya başla!</p>
-        
-        <form method="POST">
-            {% csrf_token %}
-            <div class="small text-muted mb-3">
-                {{ form.as_p }}
-            </div>
-            <button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-2">Kayıt Ol ve Başla</button>
-        </form>
-        
-        <hr class="my-4">
-        <p class="text-center mb-0">Zaten bir dolabın var mı? <br> <a href="{% url 'login' %}" class="text-decoration-none fw-bold text-primary">Giriş Yap</a></p>
+<div class="glass-card">
+    <div class="text-center d-flex flex-column align-items-center mb-4">
+        <div style="font-size: 2.5rem; margin-bottom: 6px;"></div>
+        <span class="gc-title">VibeFit</span>
+        <p class="text-muted small mt-1 mb-0">Kendi akıllı dolabını kurmaya başla!</p>
     </div>
-</div>
-
-</body>
-</html>
+    
+    <form method="POST" class="auth-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <button type="submit" class="gbtn gbtn-primary">Kayıt Ol ve Başla</button>
+    </form>
+    
+    <hr style="border-color: rgba(220,180,230,0.3); margin: 22px 0;">
+    
+    <div class="auth-footer">
+        Zaten bir dolabın var mı? <br> 
+        <a href="{% url 'login' %}" class="auth-

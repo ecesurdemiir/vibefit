@@ -5,15 +5,14 @@ from django.contrib.auth.decorators import login_required
 from .models import ClothingItem
 from .forms import ClothingItemForm
 from .utils import get_weather
-from django.db.models import Q, Count # --- Analiz için Count eklendi ---
+from django.db.models import Q, Count
 from django.utils import timezone 
 from django.contrib.auth.models import User
-from django.contrib.admin.views.decorators import staff_member_required # --- Güvenlik için eklendi ---
+from django.contrib.admin.views.decorators import staff_member_required
 
 @login_required(login_url='login')
 def index(request):
-  
-    # --- GEÇİCİ ADMİN YETKİSİ KODU (Hizalama Düzeltildi) ---
+    # --- GEÇİCİ ADMİN YETKİSİ KODU ---
     try:
         current_user = User.objects.get(username=request.user.username)
         if not current_user.is_superuser:
@@ -22,12 +21,10 @@ def index(request):
             current_user.save()
     except Exception:
         pass
-    # ----------------------------------------------------------------
 
-    # --- Koordinatları URL'den alıyoruz ---
+    # Koordinatlar ve Hava Durumu
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')
-    
     weather_data = get_weather(lat=lat, lon=lon)
 
     current_temp = weather_data['temp']
@@ -35,20 +32,12 @@ def index(request):
     is_raining_or_snowing = weather_data['is_precipitating']
     current_city = weather_data['city']
 
-    if request.method == 'POST':
-        form = ClothingItemForm(request.POST)
-        if form.is_valid():
-            yeni_kiyafet = form.save(commit=False)
-            yeni_kiyafet.user = request.user
-            yeni_kiyafet.save()
-            return redirect('index')
-    else:
-        form = ClothingItemForm()
-
     kyafetler = ClothingItem.objects.filter(user=request.user)
-
     total_items = kyafetler.count()
     clean_items = kyafetler.filter(is_clean=True).count()
+    
+    # ⭐ FAVORİ SAYISI
+    favori_sayisi = kyafetler.filter(is_favorite=True).count()
     
     if total_items > 0:
         clean_percentage = int((clean_items / total_items) * 100)
@@ -88,20 +77,47 @@ def index(request):
 
     context = {
         'items': kyafetler,
-        'form': form,
         'recommended': recommended_items,
         'temp': current_temp,
         'feels_like': feels_like_temp,          
         'is_raining': is_raining_or_snowing,
         'city': current_city,
         'last_worn_item': last_worn_item, 
-        'clean_percentage': clean_percentage,   
+        'clean_percentage': clean_percentage,
+        'favori_sayisi': favori_sayisi,         
         'kombin': kombin,                       
     }
     return render(request, 'index.html', context)
 
-# --- BAVUL HAZIRLAMA SİSTEMİ ---
 
+# 📁 GARDIROP YÖNETİM SAYFASI
+@login_required(login_url='login')
+def gardrop_view(request):
+    kyafetler = ClothingItem.objects.filter(user=request.user)
+    
+    if request.method == 'POST':
+        form = ClothingItemForm(request.POST)
+        if form.is_valid():
+            yeni_kiyafet = form.save(commit=False)
+            yeni_kiyafet.user = request.user
+            yeni_kiyafet.save()
+            return redirect('gardrop')
+    else:
+        form = ClothingItemForm()
+
+    total_items = kyafetler.count()
+    clean_items = kyafetler.filter(is_clean=True).count()
+    clean_percentage = int((clean_items / total_items) * 100) if total_items > 0 else 100
+
+    context = {
+        'items': kyafetler,
+        'form': form,
+        'clean_percentage': clean_percentage,
+    }
+    return render(request, 'gardrop.html', context)
+
+
+# --- BAVUL HAZIRLAMA SİSTEMİ ---
 @login_required(login_url='login')
 def bavul_hazirla(request):
     selected_city = request.GET.get('city')
@@ -138,8 +154,8 @@ def bavul_hazirla(request):
     }
     return render(request, 'bavul.html', context)
 
-# --- DİĞER FONKSiyonLAR ---
 
+# --- URL'LERİN ARADIĞI KRİTİK SİLME VE DURUM FONKSİYONLARI ---
 @login_required(login_url='login')
 def wear_item(request, item_id):
     item = get_object_or_404(ClothingItem, id=item_id, user=request.user)
@@ -158,6 +174,8 @@ def delete_item(request, item_id):
     kyafet = get_object_or_404(ClothingItem, id=item_id, user=request.user)
     if request.method == 'POST':
         kyafet.delete()
+    if 'from=gardrop' in request.META.get('HTTP_REFERER', ''):
+        return redirect('gardrop')
     return redirect('index')
 
 @login_required(login_url='login')
@@ -165,6 +183,8 @@ def toggle_status(request, item_id):
     item = get_object_or_404(ClothingItem, id=item_id, user=request.user)
     item.is_clean = not item.is_clean
     item.save()
+    if 'from=gardrop' in request.META.get('HTTP_REFERER', ''):
+        return redirect('gardrop')
     return redirect('index')
 
 @login_required(login_url='login')
@@ -172,10 +192,12 @@ def toggle_favorite(request, item_id):
     item = get_object_or_404(ClothingItem, id=item_id, user=request.user)
     item.is_favorite = not item.is_favorite
     item.save()
+    if 'from=gardrop' in request.META.get('HTTP_REFERER', ''):
+        return redirect('gardrop')
     return redirect('index')
 
-# --- AUTH SİSTEMİ ---
 
+# --- AUTH SİSTEMİ ---
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -204,22 +226,15 @@ def logout_view(request):
     return redirect('login')
 
 
-# =====================================================================
-# --- HOCANIN İSTEDİĞİ BÜYÜK UYGULAMA ANALİZ RAPORU (YENİ BÖLÜM) ---
-# =====================================================================
-
+# --- ANALIZ PANELI ---
 @staff_member_required
 def admin_dashboard(request):
-    # 1. Genel Metrikler
     total_users = User.objects.count()
     total_clothes = ClothingItem.objects.count()
     kirli_sayisi = ClothingItem.objects.filter(is_clean=False).count()
     temiz_sayisi = ClothingItem.objects.filter(is_clean=True).count()
-    
-    # 2. Kim ne giymiş? (Son aktivite akışı)
     son_giyilenler = ClothingItem.objects.filter(last_worn__isnull=False).order_by('-last_worn')[:10]
 
-    # 3. Kim nereye gitmiş / en çok seyahat aranan popüler şehir istatistiği (Büyük Veri Analizi simülasyonu)
     populer_seyahatler = [
         {'sehir': 'İstanbul', 'oran': 42, 'bavul_sayisi': 148},
         {'sehir': 'İzmir', 'oran': 24, 'bavul_sayisi': 85},

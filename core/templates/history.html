@@ -1,39 +1,81 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Sayfa Başlığı -->
-    <h3 class="mb-4" style="color: #5d4037;">🕒 Son Giydiklerim</h3>
+<style>
+    .history-banner {
+        background: linear-gradient(135deg, #90c4f8 0%, #c4a0f0 50%, #f8a4d0 100%);
+        border-radius: 20px; padding: 24px 30px; margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(144,196,248,0.15);
+    }
+    .history-banner h2 { font-size: 22px; font-weight: 600; color: #3a0a2a; }
+    .history-banner p { font-size: 13px; color: rgba(60,10,45,0.7); margin-top: 4px; }
+
+    .hist-card-row {
+        display: flex; align-items: center; gap: 14px;
+        padding: 12px 0; border-bottom: 1px solid rgba(220,180,230,0.2);
+    }
+    .hist-card-row:last-child { border-bottom: none; }
     
-    <div class="card shadow-sm border-0" style="border-radius: 15px;">
-        <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-                {% for item in history %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                        <div>
-                            <!-- Kıyafetin Adı -->
-                            <strong class="text-dark">{{ item.name }}</strong>
-                            <!-- Kategorisi (Üst, Alt, Ayakkabı vb.) -->
-                            <span class="badge bg-light text-secondary ms-2" style="border: 1px solid #ddd;">
-                                {{ item.get_category_display }}
-                            </span>
-                        </div>
-                        <div class="text-end">
-                            <!-- Giydiğin Tarih (Örn: 13 Mayıs 2026) -->
-                            <div class="small fw-bold" style="color: #8d6e63;">{{ item.last_worn|date:"d F Y" }}</div>
-                            <!-- Giydiğin Saat (Örn: 13:25) -->
-                            <div class="small text-muted">{{ item.last_worn|time:"H:i" }}</div>
-                        </div>
-                    </li>
-                {% empty %}
-                    <!-- Eğer liste boşsa görünecek kısım -->
-                    <li class="list-group-item text-center py-5 text-muted">
-                        <p class="mb-0">Henüz hiçbir kıyafetini "Giydim" olarak işaretlememişsin.</p>
-                        <small>Ana sayfaya dönüp bir seçim yapmaya ne dersin?</small>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+    .hist-date-box {
+        font-size: 12px; font-weight: 600; color: #a07090; min-width: 90px;
+        background: rgba(230,180,220,0.15); padding: 4px 10px; border-radius: 12px; text-align: center;
+    }
+    .hist-item-name { font-size: 14px; font-weight: 600; color: #3a0a2a; flex: 1; }
+</style>
+
+<div class="container" style="max-width: 850px;">
+    
+    <!-- ÜST BANNER -->
+    <div class="history-banner">
+        <h2>Gardırop Kullanım Geçmişim</h2>
+        <p>Hangi gün ne giydiğini hatırla! VibeFit stil analizini güçlendirmek için giydiğin kıyafetlerin kaydını tutar.</p>
     </div>
+
+    <!-- ZAMAN TÜNELİ KARTI (GLASS CARD) -->
+    <div class="glass-card">
+        <div class="gc-head">
+            <span class="gc-title">Son Giydiğin Parçalar</span>
+            <span class="badge-custom b-lav">Giyim Akışı</span>
+        </div>
+
+        {% for item in history %}
+        <div class="hist-card-row">
+            <!-- Tarih Alanı -->
+            <div class="hist-date-box">
+                {{ item.last_worn|date:"d M Y" }}
+            </div>
+
+            <!-- Kıyafet Görseli -->
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #FFD1DC;">
+            {% else %}
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border: 1px dashed #ccc; font-size: 1.1rem;">👔</div>
+            {% endif %}
+
+            <!-- Kıyafet İsim ve Detayları -->
+            <div class="hist-item-name">
+                <div>{{ item.name }}</div>
+                <small class="text-muted fw-normal" style="font-size: 11px;">{{ item.get_category_display }} · {{ item.get_style_display }}</small>
+            </div>
+
+            <!-- Stil Etiketi -->
+            <div>
+                <span class="badge-custom b-rose">{{ item.get_style_display|upper }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center p-5 text-muted" style="font-size: 13px;">
+            Henüz geçmişte giyilmiş bir kıyafet kaydı bulunamadı. Ana sayfadaki "Bugün Bunu Giydim" butonuyla ilk kaydını oluşturabilirsin!
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
+
+<script>
+    window.onload = function() {
+        const activeNav = document.getElementById('nav-history');
+        if (activeNav) activeNav.classList.add('active');
+    };
+</script>
 {% endblock %}

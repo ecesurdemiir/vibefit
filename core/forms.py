@@ -15,6 +15,7 @@ class ClothingItemForm(forms.ModelForm):
             'is_waterproof', 
             'is_clean', 
             'is_favorite'
+         
         ]
         
         # Tasarımı ana sayfana uyumlu (Bootstrap) hale getirdik

@@ -1,106 +1,130 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeFit Gardırop</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>VibeFit - Akıllı Gardırop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Yan Menü (Sidebar) Tasarımı */
-        .sidebar {
-            height: 100vh;
-            background-color: #5d4037; /* Görseldeki koyu kahve tonu */
-            color: white;
-            padding-top: 30px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 250px;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(145deg, #fff0f8 0%, #f5eeff 50%, #e8f4ff 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
-        .sidebar h4 {
-            padding: 0 20px 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #795548;
+        .topbar {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(220, 180, 230, 0.3);
+            padding: 0 28px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-pill {
+            background: linear-gradient(135deg, #e879b0, #a855f7);
+            border-radius: 12px;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 16px; font-weight: bold;
+        }
+        .logo-text {
+            font-size: 18px; font-weight: 600;
+            background: linear-gradient(90deg, #c2447a, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .top-nav { display: flex; gap: 4px; }
+        .tn-item {
+            padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 500;
+            color: #a07090; cursor: pointer; display: flex; align-items: center; gap: 6px;
+            transition: all .2s; text-decoration: none;
+        }
+        .tn-item:hover { background: rgba(230, 180, 230, 0.2); color: #8b2f6a; }
+        .tn-item.active {
+            background: linear-gradient(135deg, #fce4f3, #ede9fe);
+            color: #7c2d8a; font-weight: 600;
+        }
+        .top-right { display: flex; align-items: center; gap: 12px; }
+        .avatar-pill {
+            display: flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #fce4f3, #ede9fe);
+            border-radius: 22px; padding: 5px 14px 5px 5px;
+        }
+        .avatar-circle {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #e879b0, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 11px; font-weight: 600;
+        }
+        .avatar-name { font-size: 13px; font-weight: 600; color: #7c2d8a; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 18px;
+            border: 1px solid rgba(220, 180, 230, 0.3);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(220, 180, 230, 0.08);
             margin-bottom: 20px;
         }
-
-        .sidebar a {
-            color: #d7ccc8;
-            text-decoration: none;
-            padding: 15px 25px;
-            display: block;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-        }
-
-        .sidebar a:hover {
-            background-color: #795548;
-            color: white;
-            padding-left: 35px;
-        }
-
-        .sidebar a.active {
-            background-color: #8d6e63; /* Seçili olan menü rengi */
-            color: white;
-            border-left: 5px solid #d7ccc8;
-        }
-
-        /* Ana İçerik Alanı */
-        .main-content {
-            margin-left: 250px; /* Sidebar genişliği kadar boşluk */
-            padding: 40px;
-        }
-
-        .user-info {
-            padding: 20px;
-            font-size: 0.9rem;
-            color: #bcaaa4;
-            position: absolute;
-            bottom: 80px;
-        }
+        .gc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .gc-title { font-size: 16px; font-weight: 600; color: #3a0a2a; }
+        
+        .badge-custom { font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 600; display: inline-block; }
+        .b-rose { background: linear-gradient(90deg, #fce4f0, #f5d6fe); color: #9d2060; }
+        .b-lav { background: linear-gradient(90deg, #ede9fe, #e4d8fe); color: #5030b0; }
+        .b-green { background: linear-gradient(90deg, #d4f5e9, #c8eef8); color: #1a7060; }
 
         .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            width: 210px;
-            left: 20px;
+            background: none; border: none; color: #a07090; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px; transition: color 0.2s;
         }
+        .logout-btn:hover { color: #cc3366; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h4>🧥 VibeFit</h4>
-        
-        <!-- Menü Linkleri -->
-        <a href="{% url 'index' %}" id="nav-home">🏠 Ana Sayfa</a>
-        <a href="{% url 'history' %}" id="nav-history">🕒 Son Giydiklerim</a>
-        
-        <div class="user-info">
-            👤 Kullanıcı: <strong>{{ request.user.username }}</strong>
+    <div class="topbar">
+        <div class="logo-area">
+            <div class="logo-pill">👔</div>
+            <span class="logo-text">VibeFit</span>
         </div>
-        <!-- Bavul Linki-->
-        <a href="{% url 'bavul_hazirla' %}" id="nav-bavul" class="{% if request.resolver_match.url_name == 'bavul_hazirla' %}active{% endif %}">🧳 Bavul Hazırla</a>
-        <!-- Çıkış Butonu -->
-        <form action="{% url 'logout' %}" method="POST" class="logout-btn">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-light btn-sm w-100">Güvenli Çıkış 🔒</button>
-        </form>
+        <div class="top-nav">
+            <a href="{% url 'index' %}" class="tn-item" id="nav-home">Ana Sayfa</a>
+            <a href="{% url 'gardrop' %}" class="tn-item" id="nav-gardrop">Gardırobum</a>
+            <a href="{% url 'history' %}" class="tn-item" id="nav-history">Son Giydiklerim</a>
+            <a href="{% url 'bavul_hazirla' %}" class="tn-item" id="nav-bavul">Bavul Hazırla</a>
+        </div>
+        <div class="top-right">
+            {% if request.user.is_authenticated %}
+                <div class="avatar-pill">
+                    <div class="avatar-circle">{{ request.user.username|slice:":2"|upper }}</div>
+                    <span class="avatar-name">{{ request.user.username }}</span>
+                </div>
+                <form action="{% url 'logout' %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Çıkış</button>
+                </form>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="main-content">
-        <!-- Sayfaya özel içerikler  -->
+    <div class="py-4">
         {% block content %}
         {% endblock %}
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

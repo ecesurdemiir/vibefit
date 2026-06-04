@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.gardrop-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+.bento-input-form p { margin-bottom: 12px; }
+.bento-input-form p label { font-size: 12px; color: #7c2d8a; font-weight: 600; display: block; margin-bottom: 4px; }
+.bento-input-form p input, .bento-input-form p select {
+    width: 100%; padding: 10px 12px; border: 1px solid rgba(220,180,230,0.4);
+    border-radius: 10px; font-size: 13px; background: rgba(255,255,255,0.8); outline: none;
+}
+.bento-input-form p input[type="checkbox"] { width: auto; margin-right: 6px; }
+
+.gbtn {
+  width: 100%; padding: 11px; border-radius: 12px; font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all .2s; margin-top: 10px;
+}
+.gbtn-primary { background: linear-gradient(135deg, #e879b0, #a855f7); color: #fff; box-shadow: 0 4px 12px rgba(168,85,247,0.2); }
+
+.cl-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(220,180,230,0.2); }
+.cl-row:last-of-type { border-bottom: none; }
+.cl-name { font-size: 14px; font-weight: 600; color: #3a0a2a; }
+.cl-cat  { font-size: 11px; color: #a080a0; }
+
+.cl-btn {
+  width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(220,180,230,0.3);
+  background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px; color: #c090c0; text-decoration: none;
+}
+.cl-btn:hover { background: linear-gradient(135deg,#fce4f0,#ede9fe); color: #9030a0; }
+</style>
+
+<div class="container">
+    <div class="gardrop-grid">
+        
+        <!-- SOL SÜTUN: FORM -->
+        <div class="glass-card" style="height: fit-content;">
+            <div class="gc-head">
+                <span class="gc-title">➕ Yeni Kıyafet Ekle</span>
+                <span class="badge-custom b-rose">Yeni Parça</span>
+            </div>
+            <form method="POST" class="bento-input-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="gbtn gbtn-primary">Kıyafeti Gardıroba Ekle</button>
+            </form>
+        </div>
+
+        <!-- SAĞ SÜTUN: TÜM LİSTE -->
+        <div class="glass-card">
+            <div class="gc-head">
+                <span class="gc-title"> Tüm Gardırobum ({{ items.count }} Parça)</span>
+                <span class="badge-custom b-lav">Koleksiyonum</span>
+            </div>
+
+            {% for item in items %}
+            <div class="cl-row">
+                <div class="rounded-circle bg-light me-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border: 1px dashed #ccc; font-size: 1.1rem;">👔</div>
+                
+                <div style="flex:1;">
+                  <div class="cl-name">{{ item.name }}</div>
+                  <div class="cl-cat">{{ item.get_category_display }} · {{ item.get_style_display }}</div>
+                </div>
+                
+                {% if item.is_clean %}
+                    <span class="badge-custom b-green">Temiz</span>
+                {% else %}
+                    <span class="badge-custom b-rose" style="background: #fde4f0; color: #9d2060;">Kirli</span>
+                {% endif %}
+                
+                <a href="{% url 'toggle_status' item.id %}?from=gardrop" class="cl-btn" title="Durum Değiştir">🧼</a>
+                <a href="{% url 'toggle_favorite' item.id %}?from=gardrop" class="cl-btn" title="Favori">
+                    {% if item.is_favorite %}⭐{% else %}☆{% endif %}
+                </a>
+                
+                <form action="{% url 'delete_item' item.id %}?from=gardrop" method="POST" style="display:inline; margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="cl-btn" onclick="return confirm('Silmek istediğine emin misin?')" title="Sil">🗑️</button>
+                </form>
+            </div>
+            {% empty %}
+                <p class="text-muted text-center p-4">Gardırobunuz henüz boş. Soldaki formdan hemen ilk kıyafetinizi ekleyin!</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        const activeNav = document.getElementById('nav-gardrop');
+        if (activeNav) activeNav.classList.add('active');
+    };
+</script>
+{% endblock %}
