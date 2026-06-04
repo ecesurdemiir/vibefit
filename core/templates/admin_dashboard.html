@@ -4,6 +4,7 @@
 {% block content %}
 <div class="container mt-4">
     
+    <!-- Üst Başlık Paneli -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(220,180,230,0.3);">
         <div>
             <h2 class="fw-bold" style="color: #3a0a2a; margin: 0; font-size: 24px;">📊 VibeFit Canlı Yönetim Paneli</h2>
@@ -17,6 +18,7 @@
         </form>
     </div>
 
+    <!-- Üst Sayaç Kutuları -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card shadow-sm p-3 text-center" style="border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(220,180,230,0.2);">
@@ -48,7 +50,9 @@
         </div>
     </div>
 
+    <!-- Alt İki Grafik/Tablo Alanı -->
     <div class="row g-4">
+        <!-- SOL TABLO: KULLANICI SEÇİMLERİ AKIŞI -->
         <div class="col-md-6">
             <div class="card shadow-sm p-4 h-100" style="border-radius: 18px; background: rgba(255,255,255,0.85); border: 1px solid rgba(220,180,230,0.25);">
                 <h4 class="fw-bold text-dark mb-2" style="font-size: 16px;">🔄 Canlı Kullanıcı Seçim Akışı</h4>
@@ -72,7 +76,7 @@
                                 <td>
                                     {% if item.category == 'ust' %}👕 Üst Giyim
                                     {% elif item.category == 'alt' %}🩳 Alt Giyim
-                                    {% elif item.category == 'dis' %} Jacket 🧥 Dış Giyim
+                                    {% elif item.category == 'dis' %}🧥 Dış Giyim
                                     {% elif item.category == 'ayakkabi' %}👟 Ayakkabı
                                     {% else %}💎 Aksesuar{% endif %}
                                 </td>
@@ -89,15 +93,16 @@
             </div>
         </div>
 
+        <!-- SAĞ TABLO: GERÇEK SEYAHAT ANALİZLERİ -->
         <div class="col-md-6">
             <div class="card shadow-sm p-4 h-100" style="border-radius: 18px; background: rgba(255,255,255,0.85); border: 1px solid rgba(220,180,230,0.25);">
-                <h4 class="fw-bold text-dark mb-2" style="font-size: 16px;">📍 En Çok Seyahat Edilen Lokasyonlar</h4>
-                <p class="text-muted small mb-3">Kullanıcıların seyahat planlarında en çok tercih ettiği popüler şehirler:</p>
+                <h4 class="fw-bold text-dark mb-2" style="font-size: 16px;">📍 En Çok Bavul Hazırlanan Lokasyonlar</h4>
+                <p class="text-muted small mb-3">Kullanıcıların seyahat planlarında bavul hazırlama sayfasından seçtiği gerçek veriler:</p>
                 <ul class="list-group list-group-flush">
                     {% for seyahat in populer_seyahatler %}
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent" style="font-size: 14px; border-bottom: 1px solid rgba(220,180,230,0.1);">
                         <span>🏙️ {{ seyahat.sehir }}</span>
-                        <span class="fw-semibold" style="color: #7c2d8a;">{{ seyahat.bavul_sayisi }} Plan (%{{ seyahat.oran }})</span>
+                        <span class="fw-semibold" style="color: #7c2d8a;">{{ seyahat.bavul_sayisi }} Kez Sorgulandı</span>
                     </li>
                     {% endfor %}
                 </ul>

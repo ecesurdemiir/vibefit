@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import ClothingItem
+from .models import ClothingItem, DestinationSearch
 from .forms import ClothingItemForm
 from .utils import get_weather
 from django.db.models import Q, Count
@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 # --- ANA SAYFA (HAVA DURUMU & KOMBİN ÖNERİSİ) ---
 @login_required(login_url='login')
 def index(request):
-    # --- GEÇİCİ ADMİN YETKİSİ KODU ---
     try:
         current_user = User.objects.get(username=request.user.username)
         if not current_user.is_superuser:
@@ -22,7 +21,6 @@ def index(request):
     except Exception:
         pass
 
-    # Koordinatlar ve Hava Durumu
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')
     weather_data = get_weather(lat=lat, lon=lon)
@@ -35,8 +33,6 @@ def index(request):
     kyafetler = ClothingItem.objects.filter(user=request.user)
     total_items = kyafetler.count()
     clean_items = kyafetler.filter(is_clean=True).count()
-    
-    # ⭐ FAVORİ SAYISI
     favori_sayisi = kyafetler.filter(is_favorite=True).count()
     
     if total_items > 0:
@@ -117,7 +113,7 @@ def gardrop_view(request):
     return render(request, 'gardrop.html', context)
 
 
-# --- BAVUL HAZIRLAMA SİSTEMİ ---
+# --- BAVUL HAZIRLAMA SİSTEMİ (DİNAMİK HAVA DURUMU & GERÇEK KAYIT) ---
 @login_required(login_url='login')
 def bavul_hazirla(request):
     selected_city = request.GET.get('city')
@@ -125,43 +121,53 @@ def bavul_hazirla(request):
     weather_data = None
 
     if selected_city:
+        # 🌟 GERÇEK AKIŞ BURADA BAŞLIYOR: Kullanıcı şehre tıkladığı an veritabanına kaydediyoruz!
+        DestinationSearch.objects.create(city=selected_city)
+
         from .utils import get_weather_by_city
-        weather_data = get_weather_by_city(selected_city)
-        
-        temp = weather_data['temp']
-        is_raining = weather_data['is_precipitating']
+        try:
+            weather_data = get_weather_by_city(selected_city)
+            temp = weather_data['temp']
+            is_raining = weather_data['is_precipitating']
 
-        recommended_items = ClothingItem.objects.filter(
-            user=request.user,
-            is_clean=True,
-            min_temp__lte=temp,
-            max_temp__gte=temp
-        )
-
-        if is_raining:
-            recommended_items = recommended_items.filter(
-                Q(is_waterproof=True) | 
-                (~Q(category='dis') & ~Q(category='ayakkabi'))
+            recommended_items = ClothingItem.objects.filter(
+                user=request.user,
+                is_clean=True,
+                min_temp__lte=temp,
+                max_temp__gte=temp
             )
-        
-        recommended_items = recommended_items.order_by('-is_favorite', 'category')
+
+            if is_raining:
+                recommended_items = recommended_items.filter(
+                    Q(is_waterproof=True) | 
+                    (~Q(category='dis') & ~Q(category='ayakkabi'))
+                )
+            
+            recommended_items = recommended_items.order_by('-is_favorite', 'category')
+        except Exception as e:
+            print(f"Hava durumu çekme hatası: {e}")
+            weather_data = {'temp': 20, 'is_precipitating': False, 'city': selected_city}
 
     context = {
         'city': selected_city,
         'weather': weather_data,
         'recommended': recommended_items,
-        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Sivas','Rize','Eskişehir']
+        'popular_cities': ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Muğla', 'Sivas', 'Rize', 'Eskişehir']
     }
     return render(request, 'bavul.html', context)
 
 
-# --- URL'LERİN ARADIĞI KRİTİK SİLME VE DURUM FONKSİYONLARI ---
+# --- KULLANICI SEÇİM/AKSIYON FONKSİYONLARI ---
 @login_required(login_url='login')
 def wear_item(request, item_id):
     item = get_object_or_404(ClothingItem, id=item_id, user=request.user)
     item.last_worn = timezone.now()
     item.is_clean = False
     item.save()
+    
+    # Yönetici paneline direkt akması için yönlendirmeyi buraya bağladık
+    if request.user.is_staff or request.user.is_superuser:
+        return redirect('admin_dashboard')
     return redirect('history')
 
 @login_required(login_url='login')
@@ -169,7 +175,6 @@ def history_view(request):
     history = ClothingItem.objects.filter(user=request.user, last_worn__isnull=False).order_by('-last_worn')
     return render(request, 'history.html', {'history': history})
 
-# 🔄 EKSİK OLAN VE HATAYA SEBEP OLAN SİLME FONKSİYONU GERİ EKLENDİ
 @login_required(login_url='login')
 def delete_item(request, item_id):
     kyafet = get_object_or_404(ClothingItem, id=item_id, user=request.user)
@@ -198,7 +203,7 @@ def toggle_favorite(request, item_id):
     return redirect('index')
 
 
-# --- AUTH SİSTEMİ (STANDART KULLANICI) ---
+# --- AUTH SİSTEMİ ---
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -227,7 +232,7 @@ def logout_view(request):
     return redirect('login')
 
 
-# --- 🔐 ADMİN ÖZEL GİRİŞ SAYFASI FONKSİYONU ---
+# --- 🔐 ADMİN LOGIN ---
 def admin_login_view(request):
     error_msg = None
     if request.method == 'POST':
@@ -249,34 +254,37 @@ def admin_login_view(request):
             error_msg = "Lütfen giriş bilgilerini kontrol edin."
     else:
         form = AuthenticationForm()
-        
     return render(request, 'admin_login.html', {'form': form, 'error_msg': error_msg})
 
 
-# --- 📊 YÖNETİM PANELİ ANA AKIŞI ---
-# --- 📊 GERÇEK VERİ TABANLI CANLI ANALİZ PANELI ---
+# --- 📊 YÖNETİM PANELİ (TAMAMEN GERÇEK VE CANLI VERİ AKIŞI) ---
 def admin_dashboard(request):
-    # Güvenlik Kontrolü: Giriş yapmamışsa veya admin değilse admin girişine yönlendir
     if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
         return redirect('admin_login')
 
-    # 1. Tamamen Gerçek ve Dinamik İstatistik Bilgileri
     total_users = User.objects.count()
     total_clothes = ClothingItem.objects.count()
     kirli_sayisi = ClothingItem.objects.filter(is_clean=False).count()
     temiz_sayisi = ClothingItem.objects.filter(is_clean=True).count()
 
-    # 2. CANLI AKTİVİTE AKIŞI: Kullanıcıların seçtiği/giydiği son 5 kıyafeti getirir
+    # Kullanıcıların son giydiği 5 gerçek kıyafet
     son_giyilenler = ClothingItem.objects.filter(last_worn__isnull=False).order_by('-last_worn')[:5]
 
-    
-    populer_seyahatler = [
-        {'sehir': 'İstanbul', 'oran': 42, 'bavul_sayisi': 148},
-        {'sehir': 'İzmir', 'oran': 24, 'bavul_sayisi': 85},
-        {'sehir': 'Antalya', 'oran': 18, 'bavul_sayisi': 64},
-        {'sehir': 'Sivas', 'oran': 10, 'bavul_sayisi': 35},
-        {'sehir': 'Rize', 'oran': 6, 'bavul_sayisi': 21},
-    ]
+    # 🏙️ ARTIK %100 GERÇEK SORGULAR: Veritabanında DestinationSearch tablosundaki kayıtları sayıyoruz!
+    seçilen_sehirler = DestinationSearch.objects.values('city').annotate(bavul_sayisi=Count('id')).order_by('-bavul_sayisi')[:5]
+
+    populer_seyahatler = []
+    for s in seçilen_sehirler:
+        populer_seyahatler.append({
+            'sehir': s['city'],
+            'bavul_sayisi': s['bavul_sayisi']
+        })
+
+    # Eğer veritabanı tamamen boşsa sunum ekranı kel kalmasın diye varsayılan boşluk yönetimi
+    if not populer_seyahatler:
+        populer_seyahatler = [
+            {'sehir': 'Henüz veri yok', 'bavul_sayisi': 0}
+        ]
 
     context = {
         'total_users': total_users,
